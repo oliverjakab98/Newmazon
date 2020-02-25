@@ -1,0 +1,61 @@
+C# .net
+
+Xml (elsőre próba)
+
+label, NxM txt beolvasás, animációk, 
+
+Algoritmus - módistott dijkstra
+
+Robot egyszerre mozgás tick-el
+
+mezok - enum hogy mi a mező maga
+mezoket tárolunk, speciális mezők pedig származtatva:
+
+
+robot: van rajta szekrény vagy nincs, hp stb...
+
+szekrény: ID, mi van rajta
+
+minden mezőnek, van ID-ja és hogy éppen van e rajta robot
+
+
+	-üres mezo:-[x,y]
+
+	-szekrényhely: 
+		-foglalt e
+	       -ID
+               -[x,y]
+		
+	-töltőállomás:
+		-ID
+		-használatban van e
+		-[x,y]
+
+	-leadási állomás:
+		-ID (mit kell oda vinni)
+		-[x,y]
+		-Foglalt e
+		
+Ráállás a mezőkre leadásnál, töltésnél
+
+Kikerülésnél a robot tudja hogy polc, vagy robot, vagy polc-robot: edge-casek keresztül kerülés
+
+
+
+
+MVVM
+
+Kommentek
+
+
+
+
+
+
+
+
+
+
+
+
+BONUS: random jelennek meg még dolgok a polcokon.
