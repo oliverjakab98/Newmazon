@@ -27,7 +27,7 @@ namespace Newmazon.Persistence
 		{
 			try
 			{
-				return Directory.GetFiles(_simDirectory, "*.stl")
+				return Directory.GetFiles(_simDirectory, "*.sim")
 					.Select(path => new Simulations
 					{
 						Name = Path.GetFileNameWithoutExtension(path),
