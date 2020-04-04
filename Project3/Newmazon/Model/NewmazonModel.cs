@@ -9,6 +9,8 @@ namespace Newmazon.Model
     public class NewmazonModel
     {
         #region Fields
+        public Kozpont _kozpont;
+
         #endregion
 
         #region Properties
@@ -20,7 +22,7 @@ namespace Newmazon.Model
         #region Constructors
         public NewmazonModel()
         {
-
+            _kozpont = new Kozpont();
         }
             
         #endregion

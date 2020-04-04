@@ -9,9 +9,9 @@ namespace Newmazon.Model
 {
     public class Kozpont
     {
-        private int tableSize;
-        private List<List<NewmazonClasses>> table;
-        private List<Robot> robots;
+        public int tableSize;
+        public List<List<NewmazonClasses>> table;
+        public List<Robot> robots;
         private List<Stack<Step>> paths;
         private int startingEnergy;
         private List<Goods> goods;
@@ -27,7 +27,8 @@ namespace Newmazon.Model
 
         public void NewSimulation(AllData data)
         {
-            int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001; //mezo: 1-10000, cel: 10001-20000, polc: 20001-30000, tolto: 30001-40000, robot: 40001-50000
+            int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001;
+            //mezo: 1-10000, cel: 10001-20000, polc: 20001-30000, tolto: 30001-40000, robot: 40001-50000
             table = new List<List<NewmazonClasses>>();
             paths = new List<Stack<Step>>();
             tableSize = data.tableSize;

@@ -39,9 +39,27 @@ namespace Newmazon
 
             _viewModel = new NewmazonViewModel(_model);
 
+            _viewModel.ExitApp += new EventHandler(ViewModel_ExitApp);
+
             _view = new MainWindow();
             _view.DataContext = _viewModel;
+            _view.Closing += new System.ComponentModel.CancelEventHandler(View_Closing); // eseménykezelés a bezáráshoz
             _view.Show();
+        }
+
+        private void View_Closing(object sender, CancelEventArgs e)
+        {
+
+
+            if (MessageBox.Show("Biztos, hogy ki akar lépni?", "NewMazon", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+            {
+                e.Cancel = true; // töröljük a bezárást
+            }
+        }
+
+        private void ViewModel_ExitApp(object sender, System.EventArgs e)
+        {
+            _view.Close(); // ablak bezárása
         }
     }
 }
