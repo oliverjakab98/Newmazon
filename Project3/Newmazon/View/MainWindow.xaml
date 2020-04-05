@@ -28,19 +28,44 @@
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <!--a labelöket egy rácsba fűzzük fel-->
-                    <UniformGrid Rows="10" Columns="10" />
+                    <UniformGrid Rows="{Binding Size1}" Columns="{Binding Size2}" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-                <!--az elemek labelök lesznek-->
+                <!--az elemek labelek lesznek-->
                 <DataTemplate>
-                    <Label Content="asd"  Focusable="False" RenderTransformOrigin="0.5, 0.5" FontSize="24" FontWeight="Bold" BorderBrush="Black" Padding="2" BorderThickness="1">
-                        <!-- gomb háttérszíne -->
-                        <!-- gomb méretezése (csak az animációnál használjuk ki) -->
+                    <Label Focusable="False" RenderTransformOrigin="0.5, 0.5" BorderBrush="Black" Padding="2" BorderThickness="1">
+                        <!-- label háttérszíne -->
                         <Label.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1" />
                         </Label.RenderTransform>
-        
+                        <Label.Style>
+                            <Style TargetType="Label">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Identity}" Value="M"> <!-- Sima mező -->
+                                        <Setter Property="Background" Value="White" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value='R'> <!-- Robot -->
+                                        <Setter Property="Background" Value="Yellow" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="P"> <!-- Polc -->
+                                        <Setter Property="Background" Value="Gray" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="T"> <!-- Töltőállomás -->
+                                        <Setter Property="Background" Value="Blue" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="C"> <!-- Leadási pont -->
+                                        <Setter Property="Background" Value="Green" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="A"> <!-- Robot polc alatt -->
+                                        <Setter Property="Background" Value="Orange" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="V"> <!-- Robot viszi a polcot -->
+                                        <Setter Property="Background" Value="Red" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
                     </Label>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
