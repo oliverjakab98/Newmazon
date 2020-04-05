@@ -75,8 +75,9 @@
     <Compile Include="Model\Toltoallmoas.cs" />
     <Compile Include="Persistence\AllData.cs" />
     <Compile Include="Persistence\IPersistence.cs" />
-    <Compile Include="Persistence\NewmazonDataExcception.cs" />
+    <Compile Include="Persistence\NewmazonDataException.cs" />
     <Compile Include="Persistence\NewmazonFileDataAccess.cs" />
+    <Compile Include="Persistence\Simulations.cs" />
     <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="ViewModel\NewmazonField.cs" />
     <Compile Include="ViewModel\NewmazonViewModel.cs" />
