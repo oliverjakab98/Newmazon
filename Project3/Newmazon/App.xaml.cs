@@ -10,6 +10,7 @@ using System.Windows.Threading;
 using Newmazon.View;
 using Newmazon.ViewModel;
 using Newmazon.Model;
+using Newmazon.Persistence;
 
 namespace Newmazon
 {
@@ -35,6 +36,9 @@ namespace Newmazon
 
         private void App_Startup(object sender, StartupEventArgs e)
         {
+            IPersistence dataAccess;
+            dataAccess = new NewmazonFileDataAccess(AppDomain.CurrentDomain.BaseDirectory);
+
             _model = new NewmazonModel();
 
             _viewModel = new NewmazonViewModel(_model);

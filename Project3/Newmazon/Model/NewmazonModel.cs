@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newmazon.Persistence;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,8 +21,9 @@ namespace Newmazon.Model
         #endregion
 
         #region Constructors
-        public NewmazonModel()
+        public NewmazonModel(IPersistence dataAccess)
         {
+            AllData data = dataAccess.LoadAsync();
             _kozpont = new Kozpont();
         }
             
