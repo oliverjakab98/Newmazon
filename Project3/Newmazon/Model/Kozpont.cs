@@ -9,10 +9,10 @@ namespace Newmazon.Model
 {
     public class Kozpont
     {
-        private int tableSize;
-        private List<List<NewmazonClasses>> table;
-        private List<Robot> robots;
-        private List<List<Step>> paths;
+        public int tableSize;
+        public List<List<NewmazonClasses>> table;
+        public List<Robot> robots;
+        private List<Stack<Step>> paths;
         private int startingEnergy;
         private List<Goods> goods;
 
@@ -23,10 +23,14 @@ namespace Newmazon.Model
             
         }
 
+        #endregion
+
         public void NewSimulation(AllData data)
         {
-            int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001; //mezo: 1-10000, cel: 10001-20000, polc: 20001-30000, tolto: 30001-40000, robot: 40001-50000
+            int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001;
+            //mezo: 1-10000, cel: 10001-20000, polc: 20001-30000, tolto: 30001-40000, robot: 40001-50000
             table = new List<List<NewmazonClasses>>();
+            paths = new List<Stack<Step>>();
             tableSize = data.tableSize;
             startingEnergy = data.robotEnergy;
             for (int i = 0; i < tableSize; ++i)
@@ -78,27 +82,38 @@ namespace Newmazon.Model
         {
             for (int i=0;i<robots.Count;++i)
             {
-                if (paths[i].Count > 0)
-                {
-                    if (robots[i].x != paths[i][0].x ||
-                        robots[i].y != paths[i][0].y ||
-                        robots[i].dir != paths[i][0].dir)
-                    {
-                        robots[i].energy--;
-                        robots[i].x = paths[i][0].x;
-                        robots[i].y = paths[i][0].y;
-                        robots[i].dir = paths[i][0].dir;
-                    }
-                    paths[i].RemoveAt(0);
-
-                }
+                if (robots[i].stop > 0)
+                    robots[i].stop--;
                 else
                 {
-                    robots[i].x = paths[i][0].x;
-                    robots[i].y = paths[i][0].y;
-                    robots[i].dir = paths[i][0].dir;
-                    DoStationaryThings(robots[i]);
-                    CalculateNextJob(robots[i]);
+                    if (paths[i].Count > 0)
+                    {
+                        if (robots[i].x == paths[i].First().x &&
+                            robots[i].y == paths[i].First().y &&
+                            robots[i].dir == paths[i].First().dir)
+                        {
+
+                        }
+                        else if (robots[i].dir != paths[i].First().dir)
+                        { 
+                            robots[i].dir = paths[i].First().dir;
+                            robots[i].energy--;
+                        }
+                        else
+                        {
+                            robots[i].x = paths[i].First().x;
+                            robots[i].y = paths[i].First().y;
+                            robots[i].energy--;
+                        }
+                        paths[i].Pop();
+
+                    }
+                    else
+                    {
+                        DoStationaryThings(robots[i]);
+                        NewmazonClasses target = CalculateNextJob(robots[i]);
+                        CalculateRoute(robots[i], target);
+                    }
                 }
             }
         }
@@ -197,7 +212,196 @@ namespace Newmazon.Model
             return null;
         }
 
+        class Astar
+        {
+            public int dir; // 0: jobbra, 1: fel, 2: balra, 3: le
+            public NewmazonClasses tile;
+            public int td;   //target distance
+            public Astar pi;   //mindenki tudja, hogy mi az a pí
+            public int sd;   //start distance
+            public int fd;   //td+sd
+            public Astar[] neighbours;
 
-        #endregion
+            public Astar(NewmazonClasses field, NewmazonClasses target)
+            {
+                neighbours = new Astar[4];
+                tile = field;
+                td = (int)Math.Sqrt((target.x - field.x) * (target.x - field.x) + (target.y - field.y) * (target.y - field.y));
+                sd = 1000000;   //1millió == infinite ? Hmmm...
+                pi = null;
+                dir = -1;
+            }
+        }
+
+        public void CalculateRoute(Robot robot, NewmazonClasses target)
+        {
+            List<Astar> prioQ = new List<Astar>();
+
+            for (int i=0;i<tableSize;++i)
+            {
+                for (int j=0;j<tableSize;++j)
+                {
+                    int ID = table[i][j].ID;
+                    if (((0 < ID && ID < 10001) || (20000 < ID && ID < 30001 && robot.polc == null)) && table[robot.x][robot.y].ID != ID)
+                    {
+                        Astar a = new Astar(table[i][j], target);
+                        prioQ.Add(a);
+
+                    }
+                    else if (table[robot.x][robot.y].ID == ID)
+                    {
+                        Astar a = new Astar(table[i][j], target);
+                        a.sd = 0;
+                        a.dir = robot.dir;
+                        prioQ.Add(a);
+                    }
+                }
+            }
+
+            foreach (Astar a in prioQ)
+            {
+                foreach (Astar b in prioQ)
+                {
+                    if (a.tile.x == b.tile.x && a.tile.y == b.tile.y-1)
+                    {
+                        a.neighbours[0] = b;
+                    }
+                    if (a.tile.x == b.tile.x && a.tile.y == b.tile.y+1)
+                    {
+                        a.neighbours[2] = b;
+                    }
+                    if (a.tile.x == b.tile.x+1 && a.tile.y == b.tile.y)
+                    {
+                        a.neighbours[1] = b;
+                    }
+                    if (a.tile.x == b.tile.x-1 && a.tile.y == b.tile.y)
+                    {
+                        a.neighbours[3] = b;
+                    }
+                }
+            }
+
+            prioQ = prioQ.OrderBy(o => o.sd+o.td).ToList();
+
+            Astar u = prioQ[0];
+            prioQ.RemoveAt(0);
+
+            while (u.tile != target)
+            {
+                Astar v = u.neighbours[0];
+                int dirC = 0;
+                if (v != null)
+                {
+                    switch (u.dir)
+                    {
+                        case 0:
+                            dirC = 0;
+                            break;
+                        case 1:
+                            dirC = 1;
+                            break;
+                        case 2:
+                            dirC = 2;
+                            break;
+                        case 3:
+                            dirC = 1;
+                            break;
+                    }
+                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    {
+                        v.sd = u.sd + dirC;
+                        v.pi = u;
+                        v.dir = 0;
+                    }
+                }
+                v = u.neighbours[1];
+                if (v != null)
+                {
+                    switch (u.dir)
+                    {
+                        case 0:
+                            dirC = 1;
+                            break;
+                        case 1:
+                            dirC = 0;
+                            break;
+                        case 2:
+                            dirC = 1;
+                            break;
+                        case 3:
+                            dirC = 2;
+                            break;
+                    }
+                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    {
+                        v.sd = u.sd + dirC;
+                        v.pi = u;
+                        v.dir = 1;
+                    }
+                }
+                v = u.neighbours[2];
+                if (v != null)
+                {
+                    switch (u.dir)
+                    {
+                        case 0:
+                            dirC = 2;
+                            break;
+                        case 1:
+                            dirC = 1;
+                            break;
+                        case 2:
+                            dirC = 0;
+                            break;
+                        case 3:
+                            dirC = 1;
+                            break;
+                    }
+                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    {
+                        v.sd = u.sd + dirC;
+                        v.pi = u;
+                        v.dir = 2;
+                    }
+                }
+                v = u.neighbours[3];
+                if (v != null)
+                {
+                    switch (u.dir)
+                    {
+                        case 0:
+                            dirC = 1;
+                            break;
+                        case 1:
+                            dirC = 2;
+                            break;
+                        case 2:
+                            dirC = 1;
+                            break;
+                        case 3:
+                            dirC = 0;
+                            break;
+                    }
+                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    {
+                        v.sd = u.sd + dirC;
+                        v.pi = u;
+                        v.dir = 3;
+                    }
+                }
+                prioQ = prioQ.OrderBy(o => o.sd + o.td).ToList();
+
+                u = prioQ[0];
+                prioQ.RemoveAt(0);
+            }
+
+            while (u.pi != null)
+            {
+                paths[robot.ID-40001].Push(new Step(u.tile.x, u.tile.y, u.dir));
+                u = u.pi;
+            }
+
+        }
+
     }
 }
