@@ -68,6 +68,7 @@
     <Compile Include="Model\Kozpont.cs" />
     <Compile Include="Model\Mezo.cs" />
     <Compile Include="Model\NewmazonClasses.cs" />
+    <Compile Include="Model\NewmazonEventArgs.cs" />
     <Compile Include="Model\NewmazonModel.cs" />
     <Compile Include="Model\Polc.cs" />
     <Compile Include="Model\Robot.cs" />

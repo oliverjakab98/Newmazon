@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
+
 
 namespace Newmazon.ViewModel
 {
@@ -26,6 +28,8 @@ namespace Newmazon.ViewModel
         /// </summary>
         public DelegateCommand ExitCommand { get; private set; }
 
+        public DelegateCommand UpdateTable { get; private set; }
+
         public Int32 Size1 { get; private set; }
         public Int32 Size2 { get; private set; }
         #endregion
@@ -45,7 +49,9 @@ namespace Newmazon.ViewModel
             Size1 = _model._kozpont.tableSize;
             Size2 = _model._kozpont.tableSize;
 
+
             ExitCommand = new DelegateCommand(param => OnExitApp());
+            model.SimAdvanced += new EventHandler<NewmazonEventArgs>(Model_SimAdvanced);
 
             Fields = new ObservableCollection<NewmazonField>();
 
@@ -58,7 +64,7 @@ namespace Newmazon.ViewModel
                         Identity = 'M',
                         X = i,
                         Y = j,
-                        Number = i * 10 + j, // a gomb sorszáma, amelyet felhasználunk az azonosításhoz
+                        Number = i * _model._kozpont.tableSize + j, // a gomb sorszáma, amelyet felhasználunk az azonosításhoz
                         //StepCommand = new DelegateCommand(param => StepGame(Convert.ToInt32(param)))
 
                         // ha egy mezőre léptek, akkor jelezzük a léptetést, változtatjuk a lépésszámot
@@ -73,21 +79,21 @@ namespace Newmazon.ViewModel
         {
             foreach (NewmazonField field in Fields)
             {
-                if (_model._kozpont.table[field.X][field.Y].ID > 0 && _model._kozpont.table[field.X][field.Y].ID < 10001)
+                if (_model._kozpont.table[field.X,field.Y].ID > 0 && _model._kozpont.table[field.X,field.Y].ID < 10001)
                 {
                     field.Identity = 'M';
                 }
-                else if (_model._kozpont.table[field.X][field.Y].ID > 10000 && _model._kozpont.table[field.X][field.Y].ID < 20001)
+                else if (_model._kozpont.table[field.X,field.Y].ID > 10000 && _model._kozpont.table[field.X,field.Y].ID < 20001)
                 {
                     field.Identity = 'C';
                 }
-                else if (_model._kozpont.table[field.X][field.Y].ID > 20000 && _model._kozpont.table[field.X][field.Y].ID < 30001)
+                else if (_model._kozpont.table[field.X,field.Y].ID > 20000 && _model._kozpont.table[field.X,field.Y].ID < 30001)
                 {
-                    Polc polc = (Polc)_model._kozpont.table[field.X][field.Y];
+                    Polc polc = (Polc)_model._kozpont.table[field.X,field.Y];
                     if (polc.otthon == true) { field.Identity = 'P'; }
                     else { field.Identity = 'M'; }
                 }
-                else if (_model._kozpont.table[field.X][field.Y].ID > 30000 && _model._kozpont.table[field.X][field.Y].ID < 40001)
+                else if (_model._kozpont.table[field.X,field.Y].ID > 30000 && _model._kozpont.table[field.X,field.Y].ID < 40001)
                 {
                     field.Identity = 'T';
                 }
@@ -106,6 +112,11 @@ namespace Newmazon.ViewModel
                 else { field.Identity = 'R'; }
             }
             
+        }
+
+        private void Model_SimAdvanced(object sender, NewmazonEventArgs e)
+        {
+            RefreshTable();
         }
 
         private void OnExitApp()
