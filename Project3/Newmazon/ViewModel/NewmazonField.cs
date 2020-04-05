@@ -8,7 +8,20 @@ namespace Newmazon.ViewModel
 {
     public class NewmazonField : ViewModelBase
     {
+        private char _identity;
 
+        public char Identity
+        {
+            get { return _identity; }
+            set
+            {
+                if (_identity != value)
+                {
+                    _identity = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Vízszintes koordináta lekérdezése, vagy beállítása.
