@@ -41,6 +41,7 @@ namespace Newmazon.ViewModel
         /// </summary>
         public event EventHandler ExitApp;
         public event EventHandler NewSim;
+        public event EventHandler TimeRestart;
         #endregion
 
         #region Constructors
@@ -57,6 +58,7 @@ namespace Newmazon.ViewModel
 
             ExitCommand = new DelegateCommand(param => OnExitApp());
             NewsimCommand = new DelegateCommand(param => OnNewsim());
+            model.SimCreated += new EventHandler<NewmazonEventArgs>(Model_SimCreated);
             model.SimAdvanced += new EventHandler<NewmazonEventArgs>(Model_SimAdvanced);
 
             Fields = new ObservableCollection<NewmazonField>();
@@ -119,9 +121,9 @@ namespace Newmazon.ViewModel
 
                 NewmazonField field = Fields[x * _model._kozpont.tableSize + y];
 
-                if (robot.polc != null) { field.Identity = 'V'; Debug.WriteLine("V"); Debug.WriteLine(field.X); Debug.WriteLine(field.Y); }
-                else if (robot.polc == null && field.Identity == 'P') { field.Identity = 'A'; Debug.WriteLine("A"); Debug.WriteLine(field.X); Debug.WriteLine(field.Y); }
-                else { field.Identity = 'R'; Debug.WriteLine("R"); Debug.WriteLine(field.X); Debug.WriteLine(field.Y); }
+                if (robot.polc != null) { field.Identity = 'V'; }
+                else if (robot.polc == null && field.Identity == 'P') { field.Identity = 'A'; }
+                else { field.Identity = 'R'; }
             }
 
         }
@@ -131,10 +133,49 @@ namespace Newmazon.ViewModel
             RefreshTable();
         }
 
+        private void Model_SimCreated(object sender, NewmazonEventArgs e)
+        {
+            _model = (NewmazonModel)sender;
+
+            Size1 = _model._kozpont.tableSize;
+            Size2 = _model._kozpont.tableSize;
+
+            OnPropertyChanged("Size1");
+            OnPropertyChanged("Size2");
+
+
+            Fields.Clear();
+
+            for (Int32 i = 0; i < _model._kozpont.tableSize; i++) // inicializáljuk a mezőket  
+            {
+                for (Int32 j = 0; j < _model._kozpont.tableSize; j++)
+                {
+                    Fields.Add(new NewmazonField
+                    {
+                        Identity = 'M',
+                        X = i,
+                        Y = j,
+                        Number = i * _model._kozpont.tableSize + j, // a gomb sorszáma, amelyet felhasználunk az azonosításhoz
+                        //StepCommand = new DelegateCommand(param => StepGame(Convert.ToInt32(param)))
+
+                        // ha egy mezőre léptek, akkor jelezzük a léptetést, változtatjuk a lépésszámot
+                    });
+                }
+            }
+            TimeStart();
+            RefreshTable();
+        }
+
         private void OnExitApp()
         {
             if (ExitApp != null)
                 ExitApp(this, EventArgs.Empty);
+        }
+
+        private void TimeStart()
+        {
+            if (TimeRestart != null)
+                TimeRestart(this, EventArgs.Empty);
         }
         private void OnNewsim()
         {
