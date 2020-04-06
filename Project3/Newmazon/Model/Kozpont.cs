@@ -118,8 +118,8 @@ namespace Newmazon.Model
                             robots[i].x = paths[i].First().x;
                             robots[i].y = paths[i].First().y;
                             robots[i].energy--;
+                            paths[i].Pop();
                         }
-                        paths[i].Pop();
 
                     }
                     else
@@ -239,7 +239,6 @@ namespace Newmazon.Model
             public int td;   //target distance
             public Astar pi;   //mindenki tudja, hogy mi az a pí
             public int sd;   //start distance
-            public int fd;   //td+sd
             public Astar[] neighbours;
 
             public Astar(NewmazonClasses field, NewmazonClasses target)
@@ -277,6 +276,7 @@ namespace Newmazon.Model
                     }
                 }
             }
+            prioQ.Add(new Astar(target, target));
 
             foreach (Astar a in prioQ)
             {
@@ -306,7 +306,7 @@ namespace Newmazon.Model
             Astar u = prioQ[0];
             prioQ.RemoveAt(0);
 
-            while (u.tile != target)
+            while (u.tile != target && prioQ.Count>0)
             {
                 Astar v = u.neighbours[0];
                 int dirC = 0;

@@ -27,11 +27,12 @@ namespace Newmazon.ViewModel
         /// Kilépés parancs lekérdezése.
         /// </summary>
         public DelegateCommand ExitCommand { get; private set; }
+        public DelegateCommand NewsimCommand { get; private set; }
 
         public DelegateCommand UpdateTable { get; private set; }
 
-        public Int32 Size1 { get; private set; }
-        public Int32 Size2 { get; private set; }
+        public int Size1 { get; private set; }
+        public int Size2 { get; private set; }
         #endregion
 
         #region Events
@@ -39,6 +40,7 @@ namespace Newmazon.ViewModel
         /// App való kilépés eseménye.
         /// </summary>
         public event EventHandler ExitApp;
+        public event EventHandler NewSim;
         #endregion
 
         #region Constructors
@@ -49,8 +51,12 @@ namespace Newmazon.ViewModel
             Size1 = _model._kozpont.tableSize;
             Size2 = _model._kozpont.tableSize;
 
+            OnPropertyChanged("Size1");
+            OnPropertyChanged("Size2");
+
 
             ExitCommand = new DelegateCommand(param => OnExitApp());
+            NewsimCommand = new DelegateCommand(param => OnNewsim());
             model.SimAdvanced += new EventHandler<NewmazonEventArgs>(Model_SimAdvanced);
 
             Fields = new ObservableCollection<NewmazonField>();
@@ -71,6 +77,7 @@ namespace Newmazon.ViewModel
                     }) ;
                 }
             }
+            RefreshTable();
         }
 
 
@@ -79,6 +86,10 @@ namespace Newmazon.ViewModel
         {
             foreach (NewmazonField field in Fields)
             {
+                if (_model._kozpont.table[field.X, field.Y].ID == 0)
+                {
+                    field.Identity = 'F';
+                }
                 if (_model._kozpont.table[field.X,field.Y].ID > 0 && _model._kozpont.table[field.X,field.Y].ID < 10001)
                 {
                     field.Identity = 'M';
@@ -100,6 +111,7 @@ namespace Newmazon.ViewModel
                 
             }
 
+
             foreach (Robot robot in _model._kozpont.robots) 
             {
                 int x = robot.x;
@@ -107,11 +119,11 @@ namespace Newmazon.ViewModel
 
                 NewmazonField field = Fields[x * _model._kozpont.tableSize + y];
 
-                if (robot.polc != null) { field.Identity = 'V'; }
-                else if (robot.polc == null && field.Identity == 'P') { field.Identity = 'A'; }
-                else { field.Identity = 'R'; }
+                if (robot.polc != null) { field.Identity = 'V'; Debug.WriteLine("V"); Debug.WriteLine(field.X); Debug.WriteLine(field.Y); }
+                else if (robot.polc == null && field.Identity == 'P') { field.Identity = 'A'; Debug.WriteLine("A"); Debug.WriteLine(field.X); Debug.WriteLine(field.Y); }
+                else { field.Identity = 'R'; Debug.WriteLine("R"); Debug.WriteLine(field.X); Debug.WriteLine(field.Y); }
             }
-            
+
         }
 
         private void Model_SimAdvanced(object sender, NewmazonEventArgs e)
@@ -123,6 +135,11 @@ namespace Newmazon.ViewModel
         {
             if (ExitApp != null)
                 ExitApp(this, EventArgs.Empty);
+        }
+        private void OnNewsim()
+        {
+            if (NewSim != null)
+                NewSim(this, EventArgs.Empty);
         }
         #endregion
     }

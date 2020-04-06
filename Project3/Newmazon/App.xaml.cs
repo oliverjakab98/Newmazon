@@ -42,10 +42,6 @@ namespace Newmazon
             IPersistence dataAccess;
             dataAccess = new NewmazonFileDataAccess(AppDomain.CurrentDomain.BaseDirectory);
 
-            _view = new MainWindow();
-            _view.DataContext = _viewModel;
-            _view.Closing += new System.ComponentModel.CancelEventHandler(View_Closing); // eseménykezelés a bezáráshoz
-            _view.Show();
 
             _model = new NewmazonModel(dataAccess);
 
@@ -65,12 +61,14 @@ namespace Newmazon
 
             _model._kozpont.NewSimulation(data);
 
-            MenuFileNewSim_Click(null, null); // ha Mégse-t clickelsz error
             _viewModel = new NewmazonViewModel(_model);
-            /*
-            _model.StartSimulationForViewmodel();
-            */
             _viewModel.ExitApp += new EventHandler(ViewModel_ExitApp);
+            _viewModel.NewSim += new EventHandler(MenuFileNewSim_Click);
+
+            _view = new MainWindow();
+            _view.DataContext = _viewModel;
+            _view.Closing += new System.ComponentModel.CancelEventHandler(View_Closing); // eseménykezelés a bezáráshoz
+            _view.Show();
 
             _timer = new DispatcherTimer();
             _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
@@ -104,11 +102,12 @@ namespace Newmazon
 
         private void View_Closing(object sender, CancelEventArgs e)
         {
-
+            _timer.Stop();
             if (MessageBox.Show("Biztos, hogy ki akar lépni?", "NewMazon", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
             {
                 e.Cancel = true; // töröljük a bezárást
             }
+            _timer.Start();
         }
 
         private void ViewModel_ExitApp(object sender, System.EventArgs e)
