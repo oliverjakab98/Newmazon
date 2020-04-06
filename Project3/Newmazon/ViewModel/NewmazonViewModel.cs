@@ -113,8 +113,6 @@ namespace Newmazon.ViewModel
                 
             }
 
-            Debug.WriteLine(Fields.Count);
-
 
             foreach (Robot robot in _model._kozpont.robots) 
             {

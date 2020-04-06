@@ -93,7 +93,6 @@ namespace Newmazon.Model
 
         public void StepSimulation()
         {
-            Debug.WriteLine("tick");
             for (int i=0;i<robots.Count;++i)
             {
                 if (robots[i].stop > 0)
@@ -110,13 +109,11 @@ namespace Newmazon.Model
                         }
                         else if (robots[i].dir != paths[i].First().dir)
                         {
-                            Debug.WriteLine("fordulás");
                             robots[i].dir = paths[i].First().dir;
                             robots[i].energy--;
                         }
                         else
                         {
-                            Debug.WriteLine("lépés");
                             robots[i].x = paths[i].First().x;
                             robots[i].y = paths[i].First().y;
                             robots[i].energy--;
@@ -197,7 +194,7 @@ namespace Newmazon.Model
                 {
                     for (int i = 0; i < goods.Count; ++i)
                     {
-                        if (robot.polc.x == goods[i].x && robot.polc.x == goods[i].x)
+                        if (robot.polc.x == goods[i].x && robot.polc.y == goods[i].y)
                         {
                             goods.RemoveAt(i);
                             i--;
