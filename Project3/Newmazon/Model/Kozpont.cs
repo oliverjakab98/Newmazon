@@ -4,23 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newmazon.Persistence;
+using System.Diagnostics;
 
 namespace Newmazon.Model
 {
     public class Kozpont
     {
         public int tableSize;
-        public List<List<NewmazonClasses>> table;
+        //public List<List<NewmazonClasses>> table;
+        public NewmazonClasses[,] table;
         public List<Robot> robots;
         private List<Stack<Step>> paths;
         private int startingEnergy;
         private List<Goods> goods;
 
+        public event EventHandler<NewmazonEventArgs> SimOver;
+
         #region Constructors
 
         public Kozpont()
         {
-            
+
         }
 
         #endregion
@@ -29,10 +33,11 @@ namespace Newmazon.Model
         {
             int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001;
             //mezo: 1-10000, cel: 10001-20000, polc: 20001-30000, tolto: 30001-40000, robot: 40001-50000
-            table = new List<List<NewmazonClasses>>();
-            paths = new List<Stack<Step>>();
             tableSize = data.tableSize;
+            //table = new List<List<NewmazonClasses>>(tableSize);
+            table = new NewmazonClasses[tableSize, tableSize];
             startingEnergy = data.robotEnergy;
+            robots = new List<Robot>();
             for (int i = 0; i < tableSize; ++i)
             {
                 for (int j = 0; j < tableSize; ++j)
@@ -40,46 +45,55 @@ namespace Newmazon.Model
                     switch (data.dataTable[i, j])
                     {
                         case 'R':
-                            table[i][j] = new Mezo(mID, i, j);
+                            table[i,j] = new Mezo(mID, i, j);
                             mID++;
                             robots.Add(new Robot(rID, i, j, startingEnergy, 0, null));
                             rID++;
                             break;
                         case 'M':
-                            table[i][j] = new Mezo(mID, i, j);
+                            table[i,j] = new Mezo(mID, i, j);
                             mID++;
                             break;
                         case 'P':
-                            table[i][j] = new Polc(pID, i, j);
+                            table[i,j] = new Polc(pID, i, j);
                             pID++;
                             break;
                         case 'T':
-                            table[i][j] = new Toltoallmoas(tID, i, j);
+                            table[i,j] = new Toltoallmoas(tID, i, j);
                             tID++;
                             break;
                         case 'F':
-                            table[i][j] = new Fal(0, i, j);
+                            table[i,j] = new Fal(0, i, j);
                             break;
                         case 'C':
-                            table[i][j] = new Celallomas(cID, i, j);
+                            table[i,j] = new Celallomas(cID, i, j);
                             cID++;
                             break;
 
                     }
                 }
             }
+
+            paths = new List<Stack<Step>>(robots.Count);
+            for (int i=0;i<robots.Count;++i)
+            {
+                paths.Add(new Stack<Step>());
+            }
+
             foreach (Goods good in data.goods)
             {
                 foreach (int i in good.destinations)
                 {
-                    table[good.x][good.y].goods.Add(i);
+                    table[good.x,good.y].goods.Add(i);
                 }
             }
             goods = data.goods;
+
         }
 
         public void StepSimulation()
         {
+            Debug.WriteLine("tick");
             for (int i=0;i<robots.Count;++i)
             {
                 if (robots[i].stop > 0)
@@ -104,8 +118,8 @@ namespace Newmazon.Model
                             robots[i].x = paths[i].First().x;
                             robots[i].y = paths[i].First().y;
                             robots[i].energy--;
+                            paths[i].Pop();
                         }
-                        paths[i].Pop();
 
                     }
                     else
@@ -120,12 +134,12 @@ namespace Newmazon.Model
 
         public void DoStationaryThings(Robot robot)   //pl felemeli a polcot, lerakja a polcot, stb...
         {
-            if (table[robot.x][robot.y].ID > 10000 && table[robot.x][robot.y].ID < 20001)   //célállomáson lerakja a megfelelő árukat
+            if (table[robot.x,robot.y].ID > 10000 && table[robot.x,robot.y].ID < 20001)   //célállomáson lerakja a megfelelő árukat
             {
                 List<int> toBeRemoved = new List<int>();
                 foreach(int good in robot.polc.goods)
                 {
-                    if (good == table[robot.x][robot.y].ID - 10000)
+                    if (good == table[robot.x,robot.y].ID - 10000)
                     {
                         toBeRemoved.Add(good);
                     }
@@ -136,11 +150,11 @@ namespace Newmazon.Model
                 }
             }
 
-            if (table[robot.x][robot.y].ID > 20000 && table[robot.x][robot.y].ID < 30001)   // ha polc helyen van nincs rajta polc, vegye fel a polcot, ha pedig van rajta polc, akkor rakja le
+            if (table[robot.x,robot.y].ID > 20000 && table[robot.x,robot.y].ID < 30001)   // ha polc helyen van nincs rajta polc, vegye fel a polcot, ha pedig van rajta polc, akkor rakja le
             { 
                 if (robot.polc == null)
                 {
-                    robot.polc = (Polc)table[robot.x][robot.y];
+                    robot.polc = (Polc)table[robot.x,robot.y];
                 }
                 else
                 {
@@ -152,20 +166,20 @@ namespace Newmazon.Model
 
         public NewmazonClasses CalculateNextJob(Robot robot)   //pl helyére viszi a polcot, elmegy tölteni, stb...
         {
-            if (table[robot.x][robot.y].ID > 10000 && table[robot.x][robot.y].ID < 20001 && robot.polc.goods.Count == 0)   // vigye helyére a polcot ha célállomáson van és már nincs áru
+            if (table[robot.x,robot.y].ID > 10000 && table[robot.x,robot.y].ID < 20001 && robot.polc.goods.Count == 0)   // vigye helyére a polcot ha célállomáson van és már nincs áru
             {
-                return table[robot.polc.x][robot.polc.y];
+                return table[robot.polc.x,robot.polc.y];
             }
 
-            if (table[robot.x][robot.y].ID > 10000 && table[robot.x][robot.y].ID < 20001 && robot.polc.goods.Count != 0)   // ha célállomáson van és van még áru a polcon, menjen másik célállomásra
+            if (table[robot.x,robot.y].ID > 10000 && table[robot.x,robot.y].ID < 20001 && robot.polc.goods.Count != 0)   // ha célállomáson van és van még áru a polcon, menjen másik célállomásra
             {
                 for (int i = 0; i < tableSize; ++i)
                 {
                     for (int j = 0; j < tableSize; ++j)
                     {
-                        if (table[i][j].ID == robot.polc.goods[0] + 10000)
+                        if (table[i,j].ID == robot.polc.goods[0] + 10000)
                         {
-                            return table[i][j];
+                            return table[i,j];
                         }
                     }
                 }
@@ -177,33 +191,39 @@ namespace Newmazon.Model
                 {
                     for (int j=0;j<tableSize;++j)
                     {
-                        if (table[i][j].ID == robot.ID-10000)
+                        if (table[i,j].ID == robot.ID-10000)
                         {
-                            return table[i][j];
+                            return table[i,j];
                         }
                     }
                 }
             }
 
-            if (table[robot.x][robot.y].ID > 30000 && table[robot.x][robot.y].ID < 40001)   // ha töltőállomáson van, menjen a következő árut tartalmazó polc alá
+            if (table[robot.x,robot.y].ID > 30000 && table[robot.x,robot.y].ID < 40001)   // ha töltőállomáson van, menjen a következő árut tartalmazó polc alá
             {
-                return table[goods[0].x][goods[0].y];
+                return table[goods[0].x,goods[0].y];
             }
 
-            if (table[robot.x][robot.y].ID > 20000 && table[robot.x][robot.y].ID < 30001 && robot.polc == null)   // ha polc helyen van nincs rajta polc, menjen a következő árut tartalmazó polc alá 
+            if (table[robot.x, robot.y].ID > 0 && table[robot.x, robot.y].ID < 10001)   // ha mezőn van, menjen a következő árut tartalmazó polc alá
             {
-                return table[goods[0].x][goods[0].y];
+                return table[goods[0].x, goods[0].y];
             }
 
-            if (table[robot.x][robot.y].ID > 20000 && table[robot.x][robot.y].ID < 30001 && robot.polc != null)   // ha polc helyen van és van rajta polc, menjen a megfelelő célállomáshoz
+
+            if (table[robot.x,robot.y].ID > 20000 && table[robot.x,robot.y].ID < 30001 && robot.polc == null)   // ha polc helyen van nincs rajta polc, menjen a következő árut tartalmazó polc alá 
+            {
+                return table[goods[0].x,goods[0].y];
+            }
+
+            if (table[robot.x,robot.y].ID > 20000 && table[robot.x,robot.y].ID < 30001 && robot.polc != null)   // ha polc helyen van és van rajta polc, menjen a megfelelő célállomáshoz
             {
                 for (int i = 0; i < tableSize; ++i)
                 {
                     for (int j = 0; j < tableSize; ++j)
                     {
-                        if (table[i][j].ID == robot.polc.goods[0] + 10000)
+                        if (table[i,j].ID == robot.polc.goods[0] + 10000)
                         {
-                            return table[i][j];
+                            return table[i,j];
                         }
                     }
                 }
@@ -219,7 +239,6 @@ namespace Newmazon.Model
             public int td;   //target distance
             public Astar pi;   //mindenki tudja, hogy mi az a pí
             public int sd;   //start distance
-            public int fd;   //td+sd
             public Astar[] neighbours;
 
             public Astar(NewmazonClasses field, NewmazonClasses target)
@@ -241,22 +260,23 @@ namespace Newmazon.Model
             {
                 for (int j=0;j<tableSize;++j)
                 {
-                    int ID = table[i][j].ID;
-                    if (((0 < ID && ID < 10001) || (20000 < ID && ID < 30001 && robot.polc == null)) && table[robot.x][robot.y].ID != ID)
+                    int ID = table[i,j].ID;
+                    if (((0 < ID && ID < 10001) || (20000 < ID && ID < 30001 && robot.polc == null)) && table[robot.x,robot.y].ID != ID)
                     {
-                        Astar a = new Astar(table[i][j], target);
+                        Astar a = new Astar(table[i,j], target);
                         prioQ.Add(a);
 
                     }
-                    else if (table[robot.x][robot.y].ID == ID)
+                    else if (table[robot.x,robot.y].ID == ID)
                     {
-                        Astar a = new Astar(table[i][j], target);
+                        Astar a = new Astar(table[i,j], target);
                         a.sd = 0;
                         a.dir = robot.dir;
                         prioQ.Add(a);
                     }
                 }
             }
+            prioQ.Add(new Astar(target, target));
 
             foreach (Astar a in prioQ)
             {
@@ -286,7 +306,7 @@ namespace Newmazon.Model
             Astar u = prioQ[0];
             prioQ.RemoveAt(0);
 
-            while (u.tile != target)
+            while (u.tile != target && prioQ.Count>0)
             {
                 Astar v = u.neighbours[0];
                 int dirC = 0;
@@ -403,5 +423,10 @@ namespace Newmazon.Model
 
         }
 
+        private void OnGameOver()
+        {
+            if (SimOver != null)
+                SimOver(this, new NewmazonEventArgs(false, 0));
+        }
     }
 }

@@ -11,6 +11,8 @@ using Newmazon.View;
 using Newmazon.ViewModel;
 using Newmazon.Model;
 using Newmazon.Persistence;
+using Microsoft.Win32;
+using System.Diagnostics;
 
 namespace Newmazon
 {
@@ -24,6 +26,7 @@ namespace Newmazon
         private MainWindow _view; //Az alkalmazás főablaka
         private NewmazonViewModel _viewModel;
         private NewmazonModel _model;
+        private DispatcherTimer _timer;
 
         #endregion
 
@@ -39,26 +42,72 @@ namespace Newmazon
             IPersistence dataAccess;
             dataAccess = new NewmazonFileDataAccess(AppDomain.CurrentDomain.BaseDirectory);
 
-            _model = new NewmazonModel();
+
+            _model = new NewmazonModel(dataAccess);
+
+            char[,] dt = { {'R', 'M', 'M', 'M', 'M' }, 
+                           {'F', 'M', 'P', 'M', 'M' }, 
+                           {'F', 'M', 'P', 'M', 'T' }, 
+                           {'F', 'M', 'M', 'M', 'M' }, 
+                           {'F', 'M', 'C', 'M', 'C' } };
+            List<Goods> g = new List<Goods>();
+            int[] g1 = new int[1]; g1[0] = 1;
+            int[] g2 = new int[2]; g2[0] = 1; g2[0] = 2;
+            g.Add(new Goods(1, 2, g1));
+            g.Add(new Goods(1, 2, g2));
+            int tS = 5;
+            int rE = 100;
+            AllData data = new AllData(dt, g, tS, rE);
+
+            _model._kozpont.NewSimulation(data);
 
             _viewModel = new NewmazonViewModel(_model);
-
             _viewModel.ExitApp += new EventHandler(ViewModel_ExitApp);
+            _viewModel.NewSim += new EventHandler(MenuFileNewSim_Click);
 
             _view = new MainWindow();
             _view.DataContext = _viewModel;
             _view.Closing += new System.ComponentModel.CancelEventHandler(View_Closing); // eseménykezelés a bezáráshoz
             _view.Show();
+
+            _timer = new DispatcherTimer();
+            _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+            _timer.Tick += Timer_Tick;
+            _timer.Start();
+        }
+
+        private async void MenuFileNewSim_Click(Object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Simulation files (*.sim)|*.sim";
+            if (openFileDialog.ShowDialog() == true) // ha kiválasztottunk egy fájlt
+            {
+                try
+                {
+                    // játék betöltése
+                    await _model.LoadGameAsync(openFileDialog.FileName);
+                }
+                catch (NewmazonDataException)
+                {
+                    MessageBox.Show("Játék betöltése sikertelen!" + Environment.NewLine + "Hibás az elérési út, vagy a fájlformátum.", "Hiba!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+        }
+
+        private void Timer_Tick(Object sender, EventArgs e)
+        {
+            _model.StepSimulation();
         }
 
         private void View_Closing(object sender, CancelEventArgs e)
         {
-
-
+            _timer.Stop();
             if (MessageBox.Show("Biztos, hogy ki akar lépni?", "NewMazon", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
             {
                 e.Cancel = true; // töröljük a bezárást
             }
+            _timer.Start();
         }
 
         private void ViewModel_ExitApp(object sender, System.EventArgs e)

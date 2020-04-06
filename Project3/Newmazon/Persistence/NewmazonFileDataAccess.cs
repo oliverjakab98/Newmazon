@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Newmazon.Persistence
 {
@@ -19,8 +20,8 @@ namespace Newmazon.Persistence
 		
 		public async Task<AllData> LoadAsync(String name)
 		{
-			String path = Path.Combine(_simDirectory, name + ".sim");
-
+            String path = Path.Combine(_simDirectory, name);
+            Debug.WriteLine(path);
 			try
 			{
 				using (StreamReader reader = new StreamReader(path))

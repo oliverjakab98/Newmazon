@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Newmazon.Model
 {
@@ -11,6 +12,7 @@ namespace Newmazon.Model
     {
         #region Fields
         public Kozpont _kozpont;
+        public IPersistence _dataAccess;
 
         #endregion
 
@@ -18,15 +20,16 @@ namespace Newmazon.Model
         #endregion
 
         #region Events
+        public event EventHandler<NewmazonEventArgs> SimAdvanced;
         #endregion
 
         #region Constructors
         public NewmazonModel(IPersistence dataAccess)
         {
-            AllData data = dataAccess.LoadAsync();
+            _dataAccess = dataAccess;
             _kozpont = new Kozpont();
         }
-            
+
         #endregion
 
         #region Private Events
@@ -34,13 +37,41 @@ namespace Newmazon.Model
 
         #region Public game methods
 
-        public void NewSimulation() //majd parameterkent .txt file vagy idk
+        public void NewSimulation()
         {
-
+            //_kozpont = new Kozpont();
         }
         #endregion
 
         #region Private game methods
+
+        public async Task LoadGameAsync(String path)
+        {
+            if (_dataAccess == null)
+                throw new InvalidOperationException("No data access is provided.");
+
+            AllData data = await _dataAccess.LoadAsync(path);
+
+            _kozpont.NewSimulation(data);
+        }
+
+        public void StepSimulation()
+        {
+            _kozpont.StepSimulation();
+            OnSimAdvanced();
+        }
+
+        public void StartSimulationForViewmodel()
+        {
+            OnSimAdvanced();
+        }
+
+        private void OnSimAdvanced()
+        {
+            if (SimAdvanced != null)
+                SimAdvanced(this, new NewmazonEventArgs(false, 0));
+        }
         #endregion
+
     }
 }
