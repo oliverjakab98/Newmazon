@@ -21,6 +21,7 @@ namespace Newmazon.Model
 
         #region Events
         public event EventHandler<NewmazonEventArgs> SimAdvanced;
+        public event EventHandler<NewmazonEventArgs> SimCreated;
         #endregion
 
         #region Constructors
@@ -53,6 +54,7 @@ namespace Newmazon.Model
             AllData data = await _dataAccess.LoadAsync(path);
 
             _kozpont.NewSimulation(data);
+            OnSimCreated();
         }
 
         public void StepSimulation()
@@ -61,15 +63,16 @@ namespace Newmazon.Model
             OnSimAdvanced();
         }
 
-        public void StartSimulationForViewmodel()
-        {
-            OnSimAdvanced();
-        }
-
         private void OnSimAdvanced()
         {
             if (SimAdvanced != null)
                 SimAdvanced(this, new NewmazonEventArgs(false, 0));
+        }
+
+        private void OnSimCreated()
+        {
+            if (SimCreated != null)
+                SimCreated(this, new NewmazonEventArgs(false, 0));
         }
         #endregion
 

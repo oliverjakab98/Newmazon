@@ -16,7 +16,7 @@ namespace Newmazon.Model
         public List<Robot> robots;
         private List<Stack<Step>> paths;
         private int startingEnergy;
-        private List<Goods> goods;
+        public List<Goods> goods;
 
         public event EventHandler<NewmazonEventArgs> SimOver;
 
@@ -74,6 +74,8 @@ namespace Newmazon.Model
                 }
             }
 
+            goods = data.goods;
+
             paths = new List<Stack<Step>>(robots.Count);
             for (int i=0;i<robots.Count;++i)
             {
@@ -87,8 +89,6 @@ namespace Newmazon.Model
                     table[good.x,good.y].goods.Add(i);
                 }
             }
-            goods = data.goods;
-
         }
 
         public void StepSimulation()
@@ -109,12 +109,14 @@ namespace Newmazon.Model
 
                         }
                         else if (robots[i].dir != paths[i].First().dir)
-                        { 
+                        {
+                            Debug.WriteLine("fordulás");
                             robots[i].dir = paths[i].First().dir;
                             robots[i].energy--;
                         }
                         else
                         {
+                            Debug.WriteLine("lépés");
                             robots[i].x = paths[i].First().x;
                             robots[i].y = paths[i].First().y;
                             robots[i].energy--;
@@ -125,11 +127,31 @@ namespace Newmazon.Model
                     else
                     {
                         DoStationaryThings(robots[i]);
+
+                        if (EverythingIsHome() && goods.Count == 0)
+                        {
+                            OnSimOver();
+                            return;
+                        }
+
                         NewmazonClasses target = CalculateNextJob(robots[i]);
                         CalculateRoute(robots[i], target);
                     }
                 }
             }
+        }
+
+        public bool EverythingIsHome()
+        {
+            bool mindenOtthon = true;
+            foreach (Robot robot in robots)
+            {
+                if (robot.polc != null)
+                {
+                    mindenOtthon = false;
+                }
+            }
+            return mindenOtthon;
         }
 
         public void DoStationaryThings(Robot robot)   //pl felemeli a polcot, lerakja a polcot, stb...
@@ -146,18 +168,42 @@ namespace Newmazon.Model
                 }
                 foreach(int goodToBeRemoved in toBeRemoved)
                 {
-                    robot.polc.goods.Remove(goodToBeRemoved);
+                    for (int i=0;i<robot.polc.goods.Count;++i)
+                    {
+                        if (robot.polc.goods[i] == goodToBeRemoved)
+                        {
+                            robot.polc.goods.RemoveAt(i);
+                            i--;
+                        }
+                    }
                 }
+                robot.stop += 2;
+            }
+
+            if (table[robot.x, robot.y].ID > 30000 && table[robot.x, robot.y].ID < 40001)   // ha töltőállomáson van, menjen a következő árut tartalmazó polc alá
+            {
+                robot.stop += 5;
+                robot.energy = startingEnergy;
             }
 
             if (table[robot.x,robot.y].ID > 20000 && table[robot.x,robot.y].ID < 30001)   // ha polc helyen van nincs rajta polc, vegye fel a polcot, ha pedig van rajta polc, akkor rakja le
-            { 
+            {
                 if (robot.polc == null)
                 {
-                    robot.polc = (Polc)table[robot.x,robot.y];
+                    robot.polc = (Polc)table[robot.x, robot.y];
+                    robot.polc.otthon = false;
                 }
                 else
                 {
+                    for (int i = 0; i < goods.Count; ++i)
+                    {
+                        if (robot.polc.x == goods[i].x && robot.polc.x == goods[i].x)
+                        {
+                            goods.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                    robot.polc.otthon = true;
                     robot.polc = null;
                 }
             }
@@ -422,8 +468,7 @@ namespace Newmazon.Model
             }
 
         }
-
-        private void OnGameOver()
+        private void OnSimOver()
         {
             if (SimOver != null)
                 SimOver(this, new NewmazonEventArgs(false, 0));
