@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
+
 
 namespace Newmazon.ViewModel
 {
@@ -25,9 +27,12 @@ namespace Newmazon.ViewModel
         /// Kilépés parancs lekérdezése.
         /// </summary>
         public DelegateCommand ExitCommand { get; private set; }
+        public DelegateCommand NewsimCommand { get; private set; }
 
-        public Int32 Size1 { get; private set; }
-        public Int32 Size2 { get; private set; }
+        public DelegateCommand UpdateTable { get; private set; }
+
+        public int Size1 { get; private set; }
+        public int Size2 { get; private set; }
         #endregion
 
         #region Events
@@ -35,6 +40,8 @@ namespace Newmazon.ViewModel
         /// App való kilépés eseménye.
         /// </summary>
         public event EventHandler ExitApp;
+        public event EventHandler NewSim;
+        public event EventHandler TimeRestart;
         #endregion
 
         #region Constructors
@@ -45,7 +52,14 @@ namespace Newmazon.ViewModel
             Size1 = _model._kozpont.tableSize;
             Size2 = _model._kozpont.tableSize;
 
+            OnPropertyChanged("Size1");
+            OnPropertyChanged("Size2");
+
+
             ExitCommand = new DelegateCommand(param => OnExitApp());
+            NewsimCommand = new DelegateCommand(param => OnNewsim());
+            model.SimCreated += new EventHandler<NewmazonEventArgs>(Model_SimCreated);
+            model.SimAdvanced += new EventHandler<NewmazonEventArgs>(Model_SimAdvanced);
 
             Fields = new ObservableCollection<NewmazonField>();
 
@@ -58,13 +72,14 @@ namespace Newmazon.ViewModel
                         Identity = 'M',
                         X = i,
                         Y = j,
-                        Number = i * 10 + j, // a gomb sorszáma, amelyet felhasználunk az azonosításhoz
+                        Number = i * _model._kozpont.tableSize + j, // a gomb sorszáma, amelyet felhasználunk az azonosításhoz
                         //StepCommand = new DelegateCommand(param => StepGame(Convert.ToInt32(param)))
 
                         // ha egy mezőre léptek, akkor jelezzük a léptetést, változtatjuk a lépésszámot
                     }) ;
                 }
             }
+            RefreshTable();
         }
 
 
@@ -73,26 +88,31 @@ namespace Newmazon.ViewModel
         {
             foreach (NewmazonField field in Fields)
             {
-                if (_model._kozpont.table[field.X][field.Y].ID > 0 && _model._kozpont.table[field.X][field.Y].ID < 10001)
+                if (_model._kozpont.table[field.X, field.Y].ID == 0)
+                {
+                    field.Identity = 'F';
+                }
+                if (_model._kozpont.table[field.X,field.Y].ID > 0 && _model._kozpont.table[field.X,field.Y].ID < 10001)
                 {
                     field.Identity = 'M';
                 }
-                else if (_model._kozpont.table[field.X][field.Y].ID > 10000 && _model._kozpont.table[field.X][field.Y].ID < 20001)
+                else if (_model._kozpont.table[field.X,field.Y].ID > 10000 && _model._kozpont.table[field.X,field.Y].ID < 20001)
                 {
                     field.Identity = 'C';
                 }
-                else if (_model._kozpont.table[field.X][field.Y].ID > 20000 && _model._kozpont.table[field.X][field.Y].ID < 30001)
+                else if (_model._kozpont.table[field.X,field.Y].ID > 20000 && _model._kozpont.table[field.X,field.Y].ID < 30001)
                 {
-                    Polc polc = (Polc)_model._kozpont.table[field.X][field.Y];
+                    Polc polc = (Polc)_model._kozpont.table[field.X,field.Y];
                     if (polc.otthon == true) { field.Identity = 'P'; }
                     else { field.Identity = 'M'; }
                 }
-                else if (_model._kozpont.table[field.X][field.Y].ID > 30000 && _model._kozpont.table[field.X][field.Y].ID < 40001)
+                else if (_model._kozpont.table[field.X,field.Y].ID > 30000 && _model._kozpont.table[field.X,field.Y].ID < 40001)
                 {
                     field.Identity = 'T';
                 }
                 
             }
+
 
             foreach (Robot robot in _model._kozpont.robots) 
             {
@@ -105,13 +125,62 @@ namespace Newmazon.ViewModel
                 else if (robot.polc == null && field.Identity == 'P') { field.Identity = 'A'; }
                 else { field.Identity = 'R'; }
             }
-            
+
+        }
+
+        private void Model_SimAdvanced(object sender, NewmazonEventArgs e)
+        {
+            RefreshTable();
+        }
+
+        private void Model_SimCreated(object sender, NewmazonEventArgs e)
+        {
+            _model = (NewmazonModel)sender;
+
+            Size1 = _model._kozpont.tableSize;
+            Size2 = _model._kozpont.tableSize;
+
+            OnPropertyChanged("Size1");
+            OnPropertyChanged("Size2");
+
+
+            Fields.Clear();
+
+            for (Int32 i = 0; i < _model._kozpont.tableSize; i++) // inicializáljuk a mezőket  
+            {
+                for (Int32 j = 0; j < _model._kozpont.tableSize; j++)
+                {
+                    Fields.Add(new NewmazonField
+                    {
+                        Identity = 'M',
+                        X = i,
+                        Y = j,
+                        Number = i * _model._kozpont.tableSize + j, // a gomb sorszáma, amelyet felhasználunk az azonosításhoz
+                        //StepCommand = new DelegateCommand(param => StepGame(Convert.ToInt32(param)))
+
+                        // ha egy mezőre léptek, akkor jelezzük a léptetést, változtatjuk a lépésszámot
+                    });
+                }
+            }
+            TimeStart();
+            RefreshTable();
         }
 
         private void OnExitApp()
         {
             if (ExitApp != null)
                 ExitApp(this, EventArgs.Empty);
+        }
+
+        private void TimeStart()
+        {
+            if (TimeRestart != null)
+                TimeRestart(this, EventArgs.Empty);
+        }
+        private void OnNewsim()
+        {
+            if (NewSim != null)
+                NewSim(this, EventArgs.Empty);
         }
         #endregion
     }
