@@ -15,7 +15,7 @@
         <Menu Grid.Row="0">
             <MenuItem Header="Fájl">
                 <MenuItem Header="Jelenlegi szimuláció újraindítása" />
-                <MenuItem Header="Új szimuláció" />
+                <MenuItem Header="Új szimuláció" Command="{Binding NewsimCommand}"/>
                 <Separator />
                 <MenuItem Header="Kilépés" Command="{Binding ExitCommand}" />
             </MenuItem>
@@ -45,7 +45,10 @@
                                     <DataTrigger Binding="{Binding Identity}" Value="M"> <!-- Sima mező -->
                                         <Setter Property="Background" Value="White" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value='R'> <!-- Robot -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="F"> <!-- Fal -->
+                                        <Setter Property="Background" Value="Black" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="R"> <!-- Robot -->
                                         <Setter Property="Background" Value="Yellow" />
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding Identity}" Value="P"> <!-- Polc -->
