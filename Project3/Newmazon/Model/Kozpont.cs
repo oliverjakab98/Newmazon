@@ -20,10 +20,12 @@ namespace Newmazon.Model
         private int totalEnergyUsed;
         private int totalSteps;
         private int goodsDelivered;
+        private List<int> robotEnergyUsed;
 
         public int TotalEnergyUsed { get { return totalEnergyUsed; } }
         public int TotalSteps { get { return totalSteps; } }
         public int GoodsDelivered { get { return goodsDelivered; } }
+        public int TotalRobots { get { return robots.Count; } }
 
         public event EventHandler<NewmazonEventArgs> SimOver;
 
@@ -48,6 +50,7 @@ namespace Newmazon.Model
             table = new NewmazonClasses[tableSize, tableSize];
             startingEnergy = data.robotEnergy;
             robots = new List<Robot>();
+            robotEnergyUsed = new List<int>();
 
             for (int i = 0; i < tableSize; ++i)
             {
@@ -59,6 +62,7 @@ namespace Newmazon.Model
                             table[i,j] = new Mezo(mID, i, j);
                             mID++;
                             robots.Add(new Robot(rID, i, j, startingEnergy, 0, null));
+                            robotEnergyUsed.Add(0);
                             rID++;
                             break;
                         case 'M':
@@ -123,6 +127,7 @@ namespace Newmazon.Model
                         {
                             robots[i].dir = paths[i].First().dir;
                             robots[i].energy--;
+                            robotEnergyUsed[i]++;
                             totalEnergyUsed++;
                         }
                         else
@@ -130,6 +135,7 @@ namespace Newmazon.Model
                             robots[i].x = paths[i].First().x;
                             robots[i].y = paths[i].First().y;
                             robots[i].energy--;
+                            robotEnergyUsed[i]++;
                             totalEnergyUsed++;
                             paths[i].Pop();
                         }
@@ -288,6 +294,11 @@ namespace Newmazon.Model
             }
 
             return null;
+        }
+
+        public int getRobotEnergy(int i)
+        {
+            return robotEnergyUsed[i];
         }
 
         class Astar
