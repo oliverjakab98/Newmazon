@@ -89,7 +89,7 @@
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
         <StatusBar Grid.Row="2">
-            <!-- státuszsor a lépésszámhoz és az időhöz -->
+            <!-- státuszsor a lépésszámhoz, a leadott áruk számához, és az összesen elhasznált energiához -->
             <StatusBarItem>
                 <TextBlock Text="Lépésszám: " />
             </StatusBarItem>
