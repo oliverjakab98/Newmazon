@@ -201,8 +201,11 @@ namespace Newmazon.Model
             {
                 if (robot.polc == null)
                 {
-                    robot.polc = (Polc)table[robot.x, robot.y];
-                    robot.polc.otthon = false;
+                    if (table[robot.x, robot.y].goods.Count != 0)
+                    {
+                        robot.polc = (Polc)table[robot.x, robot.y];
+                        robot.polc.otthon = false;
+                    }
                 }
                 else
                 {
@@ -234,7 +237,7 @@ namespace Newmazon.Model
                 }
             }
 
-            if (robot.polc == null && robot.energy<=startingEnergy*0.2)   // 20% alatt menjen tölteni
+            if (robot.polc == null && robot.energy<=6*tableSize)   // 20% alatt menjen tölteni
             {
                 for (int i=0;i<tableSize;++i)
                 {
