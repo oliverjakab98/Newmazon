@@ -13,6 +13,7 @@ using Newmazon.Model;
 using Newmazon.Persistence;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.IO;
 
 namespace Newmazon
 {
@@ -116,6 +117,16 @@ namespace Newmazon
         private void Model_SimOver(object sender, NewmazonEventArgs e)
         {
             _timer.Stop();
+            string path = AppDomain.CurrentDomain.BaseDirectory + "/latestLog.txt";
+            using (StreamWriter sw = File.CreateText(path))
+            {
+                sw.WriteLine("Lépésszám: " + _model._kozpont.TotalSteps.ToString());
+                sw.WriteLine("Összes energiahasználat: " + _model._kozpont.TotalEnergyUsed.ToString());
+                for(int i = 0; i < _model._kozpont.TotalRobots; i++)
+                {
+                    sw.WriteLine((i+1).ToString() + ". robot energiahasználata: " + _model._kozpont.getRobotEnergy(i));
+                }
+            }
             MessageBox.Show("Szimuláció vége!", "NewMazon", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 

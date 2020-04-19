@@ -33,6 +33,10 @@ namespace Newmazon.ViewModel
 
         public int Size1 { get; private set; }
         public int Size2 { get; private set; }
+
+        public int DeliveredGoods { get { return _model._kozpont.GoodsDelivered; } }
+        public int TotalEnergyUsed { get { return _model._kozpont.TotalEnergyUsed; } }
+        public int StepCount { get { return _model._kozpont.TotalSteps; } }
         #endregion
 
         #region Events
@@ -110,7 +114,9 @@ namespace Newmazon.ViewModel
                 {
                     field.Identity = 'T';
                 }
-                
+                OnPropertyChanged("DeliveredGoods");
+                OnPropertyChanged("TotalEnergyUsed");
+                OnPropertyChanged("StepCount");
             }
 
 

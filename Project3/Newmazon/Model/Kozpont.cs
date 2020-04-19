@@ -17,6 +17,15 @@ namespace Newmazon.Model
         private List<Stack<Step>> paths;
         private int startingEnergy;
         public List<Goods> goods;
+        private int totalEnergyUsed;
+        private int totalSteps;
+        private int goodsDelivered;
+        private List<int> robotEnergyUsed;
+
+        public int TotalEnergyUsed { get { return totalEnergyUsed; } }
+        public int TotalSteps { get { return totalSteps; } }
+        public int GoodsDelivered { get { return goodsDelivered; } }
+        public int TotalRobots { get { return robots.Count; } }
 
         public event EventHandler<NewmazonEventArgs> SimOver;
 
@@ -32,12 +41,17 @@ namespace Newmazon.Model
         public void NewSimulation(AllData data)
         {
             int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001;
+            totalEnergyUsed = 0;
+            totalSteps = 0;
+            goodsDelivered = 0;
             //mezo: 1-10000, cel: 10001-20000, polc: 20001-30000, tolto: 30001-40000, robot: 40001-50000
             tableSize = data.tableSize;
             //table = new List<List<NewmazonClasses>>(tableSize);
             table = new NewmazonClasses[tableSize, tableSize];
             startingEnergy = data.robotEnergy;
             robots = new List<Robot>();
+            robotEnergyUsed = new List<int>();
+
             for (int i = 0; i < tableSize; ++i)
             {
                 for (int j = 0; j < tableSize; ++j)
@@ -48,6 +62,7 @@ namespace Newmazon.Model
                             table[i,j] = new Mezo(mID, i, j);
                             mID++;
                             robots.Add(new Robot(rID, i, j, startingEnergy, 0, null));
+                            robotEnergyUsed.Add(0);
                             rID++;
                             break;
                         case 'M':
@@ -93,6 +108,7 @@ namespace Newmazon.Model
 
         public void StepSimulation()
         {
+            totalSteps++;
             for (int i=0;i<robots.Count;++i)
             {
                 if (robots[i].stop > 0)
@@ -111,12 +127,16 @@ namespace Newmazon.Model
                         {
                             robots[i].dir = paths[i].First().dir;
                             robots[i].energy--;
+                            robotEnergyUsed[i]++;
+                            totalEnergyUsed++;
                         }
                         else
                         {
                             robots[i].x = paths[i].First().x;
                             robots[i].y = paths[i].First().y;
                             robots[i].energy--;
+                            robotEnergyUsed[i]++;
+                            totalEnergyUsed++;
                             paths[i].Pop();
                         }
 
@@ -183,6 +203,7 @@ namespace Newmazon.Model
                     {
                         if (robot.polc.goods[i] == goodToBeRemoved)
                         {
+                            goodsDelivered++;
                             robot.polc.goods.RemoveAt(i);
                             i--;
                         }
@@ -308,6 +329,11 @@ namespace Newmazon.Model
             }
 
             return null;
+        }
+
+        public int getRobotEnergy(int i)
+        {
+            return robotEnergyUsed[i];
         }
 
         class Astar
