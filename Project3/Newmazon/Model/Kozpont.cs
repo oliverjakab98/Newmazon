@@ -288,7 +288,8 @@ namespace Newmazon.Model
             {
                 neighbours = new Astar[4];
                 tile = field;
-                td = (int)Math.Sqrt((target.x - field.x) * (target.x - field.x) + (target.y - field.y) * (target.y - field.y));
+                //td = (int)Math.Sqrt((target.x - field.x) * (target.x - field.x) + (target.y - field.y) * (target.y - field.y));
+                td = Math.Abs(target.x - field.x) + Math.Abs(target.y - field.y);
                 sd = 1000000;   //1millió == infinite ? Hmmm...
                 pi = null;
                 dir = -1;
@@ -370,9 +371,9 @@ namespace Newmazon.Model
                             dirC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
                     {
-                        v.sd = u.sd + dirC;
+                        v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 0;
                     }
@@ -395,9 +396,9 @@ namespace Newmazon.Model
                             dirC = 2;
                             break;
                     }
-                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
                     {
-                        v.sd = u.sd + dirC;
+                        v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 1;
                     }
@@ -420,9 +421,9 @@ namespace Newmazon.Model
                             dirC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
                     {
-                        v.sd = u.sd + dirC;
+                        v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 2;
                     }
@@ -445,9 +446,9 @@ namespace Newmazon.Model
                             dirC = 0;
                             break;
                     }
-                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
                     {
-                        v.sd = u.sd + dirC;
+                        v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 3;
                     }

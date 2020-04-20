@@ -9,6 +9,20 @@ namespace Newmazon.ViewModel
     public class NewmazonField : ViewModelBase
     {
         private char _identity;
+        private string _content;
+
+        public string Content
+        {
+            get { return _content; }
+            set
+            {
+                if (_content != value)
+                {
+                    _content = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public char Identity
         {

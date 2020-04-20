@@ -69,6 +69,7 @@ namespace Newmazon.ViewModel
                 {
                     Fields.Add(new NewmazonField
                     {
+                        Content = "",
                         Identity = 'M',
                         X = i,
                         Y = j,
@@ -94,17 +95,27 @@ namespace Newmazon.ViewModel
                 }
                 if (_model._kozpont.table[field.X,field.Y].ID > 0 && _model._kozpont.table[field.X,field.Y].ID < 10001)
                 {
+                    field.Content = "";
                     field.Identity = 'M';
                 }
                 else if (_model._kozpont.table[field.X,field.Y].ID > 10000 && _model._kozpont.table[field.X,field.Y].ID < 20001)
                 {
                     field.Identity = 'C';
+                    field.Content = (_model._kozpont.table[field.X, field.Y].ID - 10000).ToString()+"-es célállomás";
                 }
                 else if (_model._kozpont.table[field.X,field.Y].ID > 20000 && _model._kozpont.table[field.X,field.Y].ID < 30001)
                 {
                     Polc polc = (Polc)_model._kozpont.table[field.X,field.Y];
-                    if (polc.otthon == true) { field.Identity = 'P'; }
-                    else { field.Identity = 'M'; }
+                    string items="";
+                    foreach (int good in _model._kozpont.table[field.X, field.Y].goods) 
+                    {
+                        string tmp = good.ToString();
+                        tmp += "  ";
+                        items += tmp;
+                    }
+                    
+                    if (polc.otthon == true) { field.Identity = 'P'; field.Content = items; }
+                    else { field.Identity = 'M'; field.Content = ""; }
                 }
                 else if (_model._kozpont.table[field.X,field.Y].ID > 30000 && _model._kozpont.table[field.X,field.Y].ID < 40001)
                 {
@@ -121,9 +132,17 @@ namespace Newmazon.ViewModel
 
                 NewmazonField field = Fields[x * _model._kozpont.tableSize + y];
 
-                if (robot.polc != null) { field.Identity = 'V'; }
+                if (robot.polc != null) 
+                {
+
+                    field.Identity = 'V'; 
+                }
                 else if (robot.polc == null && field.Identity == 'P') { field.Identity = 'A'; }
-                else { field.Identity = 'R'; }
+                else 
+                {
+                    field.Content = robot.energy.ToString();
+                    field.Identity = 'R';
+                }
             }
 
         }
@@ -152,6 +171,7 @@ namespace Newmazon.ViewModel
                 {
                     Fields.Add(new NewmazonField
                     {
+                        Content = "",
                         Identity = 'M',
                         X = i,
                         Y = j,
