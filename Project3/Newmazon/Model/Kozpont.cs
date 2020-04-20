@@ -17,6 +17,15 @@ namespace Newmazon.Model
         private List<Stack<Step>> paths;
         private int startingEnergy;
         public List<Goods> goods;
+        private int totalEnergyUsed;
+        private int totalSteps;
+        private int goodsDelivered;
+        private List<int> robotEnergyUsed;
+
+        public int TotalEnergyUsed { get { return totalEnergyUsed; } }
+        public int TotalSteps { get { return totalSteps; } }
+        public int GoodsDelivered { get { return goodsDelivered; } }
+        public int TotalRobots { get { return robots.Count; } }
 
         public event EventHandler<NewmazonEventArgs> SimOver;
 
@@ -32,12 +41,17 @@ namespace Newmazon.Model
         public void NewSimulation(AllData data)
         {
             int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001;
+            totalEnergyUsed = 0;
+            totalSteps = 0;
+            goodsDelivered = 0;
             //mezo: 1-10000, cel: 10001-20000, polc: 20001-30000, tolto: 30001-40000, robot: 40001-50000
             tableSize = data.tableSize;
             //table = new List<List<NewmazonClasses>>(tableSize);
             table = new NewmazonClasses[tableSize, tableSize];
             startingEnergy = data.robotEnergy;
             robots = new List<Robot>();
+            robotEnergyUsed = new List<int>();
+
             for (int i = 0; i < tableSize; ++i)
             {
                 for (int j = 0; j < tableSize; ++j)
@@ -48,6 +62,7 @@ namespace Newmazon.Model
                             table[i,j] = new Mezo(mID, i, j);
                             mID++;
                             robots.Add(new Robot(rID, i, j, startingEnergy, 0, null));
+                            robotEnergyUsed.Add(0);
                             rID++;
                             break;
                         case 'M':
@@ -93,6 +108,7 @@ namespace Newmazon.Model
 
         public void StepSimulation()
         {
+            totalSteps++;
             for (int i=0;i<robots.Count;++i)
             {
                 if (robots[i].stop > 0)
@@ -105,18 +121,22 @@ namespace Newmazon.Model
                             robots[i].y == paths[i].First().y &&
                             robots[i].dir == paths[i].First().dir)
                         {
-
+                            paths[i].Pop();
                         }
                         else if (robots[i].dir != paths[i].First().dir)
                         {
                             robots[i].dir = paths[i].First().dir;
                             robots[i].energy--;
+                            robotEnergyUsed[i]++;
+                            totalEnergyUsed++;
                         }
                         else
                         {
                             robots[i].x = paths[i].First().x;
                             robots[i].y = paths[i].First().y;
                             robots[i].energy--;
+                            robotEnergyUsed[i]++;
+                            totalEnergyUsed++;
                             paths[i].Pop();
                         }
 
@@ -124,14 +144,12 @@ namespace Newmazon.Model
                     else
                     {
                         DoStationaryThings(robots[i]);
-
-                        if (EverythingIsHome() && goods.Count == 0)
+                        NewmazonClasses target = CalculateNextJob(robots[i]);
+                        if (EverythingIsHome() && EverythingDelivered())
                         {
                             OnSimOver();
                             return;
                         }
-
-                        NewmazonClasses target = CalculateNextJob(robots[i]);
                         CalculateRoute(robots[i], target);
                     }
                 }
@@ -151,9 +169,25 @@ namespace Newmazon.Model
             return mindenOtthon;
         }
 
+        public bool EverythingDelivered()
+        {
+            bool mindenKezbesitve = true;
+            for (int i=0;i<tableSize;++i)
+            {
+                for (int j=0;j<tableSize;++j)
+                {
+                    if (table[i,j].ID > 20000 && table[i, j].ID < 30001)
+                    {
+                        if (table[i,j].goods.Count != 0) mindenKezbesitve = false;
+                    }
+                }
+            }
+            return mindenKezbesitve;
+        }
+
         public void DoStationaryThings(Robot robot)   //pl felemeli a polcot, lerakja a polcot, stb...
         {
-            if (table[robot.x,robot.y].ID > 10000 && table[robot.x,robot.y].ID < 20001)   //célállomáson lerakja a megfelelő árukat
+            if (table[robot.x,robot.y].ID > 10000 && table[robot.x,robot.y].ID < 20001)   //célállomáson lerakja a megfelelő árukat 2 tick alatt
             {
                 List<int> toBeRemoved = new List<int>();
                 foreach(int good in robot.polc.goods)
@@ -169,6 +203,7 @@ namespace Newmazon.Model
                     {
                         if (robot.polc.goods[i] == goodToBeRemoved)
                         {
+                            goodsDelivered++;
                             robot.polc.goods.RemoveAt(i);
                             i--;
                         }
@@ -177,7 +212,7 @@ namespace Newmazon.Model
                 robot.stop += 2;
             }
 
-            if (table[robot.x, robot.y].ID > 30000 && table[robot.x, robot.y].ID < 40001)   // ha töltőállomáson van, menjen a következő árut tartalmazó polc alá
+            if (table[robot.x, robot.y].ID > 30000 && table[robot.x, robot.y].ID < 40001)   // ha töltőállomáson van, várjon 5 ticket hogy feltöltsön
             {
                 robot.stop += 5;
                 robot.energy = startingEnergy;
@@ -187,19 +222,14 @@ namespace Newmazon.Model
             {
                 if (robot.polc == null)
                 {
-                    robot.polc = (Polc)table[robot.x, robot.y];
-                    robot.polc.otthon = false;
+                    if (table[robot.x, robot.y].goods.Count != 0)
+                    {
+                        robot.polc = (Polc)table[robot.x, robot.y];
+                        robot.polc.otthon = false;
+                    }
                 }
                 else
                 {
-                    for (int i = 0; i < goods.Count; ++i)
-                    {
-                        if (robot.polc.x == goods[i].x && robot.polc.y == goods[i].y)
-                        {
-                            goods.RemoveAt(i);
-                            i--;
-                        }
-                    }
                     robot.polc.otthon = true;
                     robot.polc = null;
                 }
@@ -228,7 +258,7 @@ namespace Newmazon.Model
                 }
             }
 
-            if (robot.energy<=startingEnergy*0.2)   // 20% alatt menjen tölteni
+            if (robot.polc == null && robot.energy<=6*tableSize)   // 20% alatt menjen tölteni
             {
                 for (int i=0;i<tableSize;++i)
                 {
@@ -244,18 +274,44 @@ namespace Newmazon.Model
 
             if (table[robot.x,robot.y].ID > 30000 && table[robot.x,robot.y].ID < 40001)   // ha töltőállomáson van, menjen a következő árut tartalmazó polc alá
             {
-                return table[goods[0].x,goods[0].y];
+                if (goods.Count > 0)
+                {
+                    Goods temp = goods[0];
+                    goods.RemoveAt(0);
+                    return table[temp.x, temp.y];
+                }
+                else
+                {
+                    return table[robot.x, robot.y];
+                }
             }
 
             if (table[robot.x, robot.y].ID > 0 && table[robot.x, robot.y].ID < 10001)   // ha mezőn van, menjen a következő árut tartalmazó polc alá
             {
-                return table[goods[0].x, goods[0].y];
+                if (goods.Count > 0)
+                {
+                    Goods temp = goods[0];
+                    goods.RemoveAt(0);
+                    return table[temp.x, temp.y];
+                }
+                else
+                {
+                    return table[robot.x, robot.y];
+                }
             }
-
 
             if (table[robot.x,robot.y].ID > 20000 && table[robot.x,robot.y].ID < 30001 && robot.polc == null)   // ha polc helyen van nincs rajta polc, menjen a következő árut tartalmazó polc alá 
             {
-                return table[goods[0].x,goods[0].y];
+                if (goods.Count > 0)
+                {
+                    Goods temp = goods[0];
+                    goods.RemoveAt(0);
+                    return table[temp.x, temp.y];
+                }
+                else
+                {
+                    return table[robot.x, robot.y];
+                }
             }
 
             if (table[robot.x,robot.y].ID > 20000 && table[robot.x,robot.y].ID < 30001 && robot.polc != null)   // ha polc helyen van és van rajta polc, menjen a megfelelő célállomáshoz
@@ -275,6 +331,11 @@ namespace Newmazon.Model
             return null;
         }
 
+        public int getRobotEnergy(int i)
+        {
+            return robotEnergyUsed[i];
+        }
+
         class Astar
         {
             public int dir; // 0: jobbra, 1: fel, 2: balra, 3: le
@@ -288,8 +349,9 @@ namespace Newmazon.Model
             {
                 neighbours = new Astar[4];
                 tile = field;
-                td = (int)Math.Sqrt((target.x - field.x) * (target.x - field.x) + (target.y - field.y) * (target.y - field.y));
-                sd = 1000000;   //1millió == infinite ? Hmmm...
+                td = Math.Abs(target.x - field.x) + Math.Abs(target.y - field.y);
+                //td = (int)Math.Sqrt((target.x - field.x) * (target.x - field.x) + (target.y - field.y) * (target.y - field.y));
+                sd = 1000000; 
                 pi = null;
                 dir = -1;
             }
@@ -370,9 +432,9 @@ namespace Newmazon.Model
                             dirC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
                     {
-                        v.sd = u.sd + dirC;
+                        v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 0;
                     }
@@ -395,9 +457,9 @@ namespace Newmazon.Model
                             dirC = 2;
                             break;
                     }
-                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
                     {
-                        v.sd = u.sd + dirC;
+                        v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 1;
                     }
@@ -420,9 +482,9 @@ namespace Newmazon.Model
                             dirC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
                     {
-                        v.sd = u.sd + dirC;
+                        v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 2;
                     }
@@ -445,9 +507,9 @@ namespace Newmazon.Model
                             dirC = 0;
                             break;
                     }
-                    if (u.sd + u.td + dirC < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
                     {
-                        v.sd = u.sd + dirC;
+                        v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 3;
                     }

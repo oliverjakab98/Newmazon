@@ -42,28 +42,36 @@
                         <Label.Style>
                             <Style TargetType="Label">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Identity}" Value="M"> <!-- Sima mező -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="M">
+                                        <!-- Sima mező -->
                                         <Setter Property="Background" Value="White" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="F"> <!-- Fal -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="F">
+                                        <!-- Fal -->
                                         <Setter Property="Background" Value="Black" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="R"> <!-- Robot -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="R">
+                                        <!-- Robot -->
                                         <Setter Property="Background" Value="Yellow" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="P"> <!-- Polc -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="P">
+                                        <!-- Polc -->
                                         <Setter Property="Background" Value="Gray" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="T"> <!-- Töltőállomás -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="T">
+                                        <!-- Töltőállomás -->
                                         <Setter Property="Background" Value="Blue" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="C"> <!-- Leadási pont -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="C">
+                                        <!-- Leadási pont -->
                                         <Setter Property="Background" Value="Green" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="A"> <!-- Robot polc alatt -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="A">
+                                        <!-- Robot polc alatt -->
                                         <Setter Property="Background" Value="Orange" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="V"> <!-- Robot viszi a polcot -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="V">
+                                        <!-- Robot viszi a polcot -->
                                         <Setter Property="Background" Value="Red" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -80,6 +88,30 @@
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
-
+        <StatusBar Grid.Row="2">
+            <!-- státuszsor a lépésszámhoz, a leadott áruk számához, és az összesen elhasznált energiához -->
+            <StatusBarItem>
+                <TextBlock Text="Lépésszám: " />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding StepCount}" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Text="Leadott termékek száma: " />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding DeliveredGoods}" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Text="Összes fogyasztás: " />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding TotalEnergyUsed}" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem />
+        </StatusBar>
     </Grid>
 </Window>
