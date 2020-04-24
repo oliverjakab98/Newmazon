@@ -33,6 +33,10 @@ namespace Newmazon.ViewModel
 
         public int Size1 { get; private set; }
         public int Size2 { get; private set; }
+
+        public int DeliveredGoods { get { return _model._kozpont.GoodsDelivered; } }
+        public int TotalEnergyUsed { get { return _model._kozpont.TotalEnergyUsed; } }
+        public int StepCount { get { return _model._kozpont.TotalSteps; } }
         #endregion
 
         #region Events
@@ -91,7 +95,7 @@ namespace Newmazon.ViewModel
             {
                 if (_model._kozpont.table[field.X, field.Y].ID == 0)
                 {
-                    field.Identity = 'F';
+                    field.Identity = 'W';
                 }
                 if (_model._kozpont.table[field.X,field.Y].ID > 0 && _model._kozpont.table[field.X,field.Y].ID < 10001)
                 {
@@ -120,8 +124,11 @@ namespace Newmazon.ViewModel
                 else if (_model._kozpont.table[field.X,field.Y].ID > 30000 && _model._kozpont.table[field.X,field.Y].ID < 40001)
                 {
                     field.Identity = 'T';
+                    field.Content = "";
                 }
-                
+                OnPropertyChanged("DeliveredGoods");
+                OnPropertyChanged("TotalEnergyUsed");
+                OnPropertyChanged("StepCount");
             }
 
 
@@ -134,14 +141,28 @@ namespace Newmazon.ViewModel
 
                 if (robot.polc != null) 
                 {
-
-                    field.Identity = 'V'; 
+                    field.Content = robot.energy.ToString();
+                    if (robot.dir == 0) { field.Identity = 'K'; }
+                    else if (robot.dir == 1) { field.Identity = 'E'; }
+                    else if (robot.dir == 2) { field.Identity = 'N'; }
+                    else if (robot.dir == 3) { field.Identity = 'D'; }
                 }
-                else if (robot.polc == null && field.Identity == 'P') { field.Identity = 'A'; }
+                else if (robot.polc == null && field.Identity == 'P') {
+
+                    field.Content = robot.energy.ToString();
+                    if (robot.dir == 0) { field.Identity = '0'; }
+                    else if (robot.dir == 1) { field.Identity = '1'; }
+                    else if (robot.dir == 2) { field.Identity = '2'; }
+                    else if (robot.dir == 3) { field.Identity = '3'; }
+                }
                 else 
                 {
                     field.Content = robot.energy.ToString();
-                    field.Identity = 'R';
+                    if (robot.dir == 0) { field.Identity = 'J'; }
+                    else if (robot.dir == 1) { field.Identity = 'F'; }
+                    else if (robot.dir == 2) { field.Identity = 'B'; }
+                    else if (robot.dir == 3) { field.Identity = 'L'; }
+
                 }
             }
 

@@ -114,6 +114,53 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="View\fel.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\jobb.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\le.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\bal.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\s_fel.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\s_jobb.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\s_le.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\s_bal.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\n_jobb.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\n_fel.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\n_bal.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\n_le.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\p_fel.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\p_jobb.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\p_le.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\p_bal.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
