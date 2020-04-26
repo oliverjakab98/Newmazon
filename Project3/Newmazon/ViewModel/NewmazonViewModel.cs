@@ -73,6 +73,7 @@ namespace Newmazon.ViewModel
                 {
                     Fields.Add(new NewmazonField
                     {
+                        Content = "",
                         Identity = 'M',
                         X = i,
                         Y = j,
@@ -94,25 +95,36 @@ namespace Newmazon.ViewModel
             {
                 if (_model._kozpont.table[field.X, field.Y].ID == 0)
                 {
-                    field.Identity = 'F';
+                    field.Identity = 'W';
                 }
                 if (_model._kozpont.table[field.X,field.Y].ID > 0 && _model._kozpont.table[field.X,field.Y].ID < 10001)
                 {
+                    field.Content = "";
                     field.Identity = 'M';
                 }
                 else if (_model._kozpont.table[field.X,field.Y].ID > 10000 && _model._kozpont.table[field.X,field.Y].ID < 20001)
                 {
                     field.Identity = 'C';
+                    field.Content = (_model._kozpont.table[field.X, field.Y].ID - 10000).ToString()+"-es célállomás";
                 }
                 else if (_model._kozpont.table[field.X,field.Y].ID > 20000 && _model._kozpont.table[field.X,field.Y].ID < 30001)
                 {
                     Polc polc = (Polc)_model._kozpont.table[field.X,field.Y];
-                    if (polc.otthon == true) { field.Identity = 'P'; }
-                    else { field.Identity = 'M'; }
+                    string items="";
+                    foreach (int good in _model._kozpont.table[field.X, field.Y].goods) 
+                    {
+                        string tmp = good.ToString();
+                        tmp += "  ";
+                        items += tmp;
+                    }
+                    
+                    if (polc.otthon == true) { field.Identity = 'P'; field.Content = items; }
+                    else { field.Identity = 'M'; field.Content = ""; }
                 }
                 else if (_model._kozpont.table[field.X,field.Y].ID > 30000 && _model._kozpont.table[field.X,field.Y].ID < 40001)
                 {
                     field.Identity = 'T';
+                    field.Content = "";
                 }
                 OnPropertyChanged("DeliveredGoods");
                 OnPropertyChanged("TotalEnergyUsed");
@@ -127,9 +139,31 @@ namespace Newmazon.ViewModel
 
                 NewmazonField field = Fields[x * _model._kozpont.tableSize + y];
 
-                if (robot.polc != null) { field.Identity = 'V'; }
-                else if (robot.polc == null && field.Identity == 'P') { field.Identity = 'A'; }
-                else { field.Identity = 'R'; }
+                if (robot.polc != null) 
+                {
+                    field.Content = robot.energy.ToString();
+                    if (robot.dir == 0) { field.Identity = 'K'; }
+                    else if (robot.dir == 1) { field.Identity = 'E'; }
+                    else if (robot.dir == 2) { field.Identity = 'N'; }
+                    else if (robot.dir == 3) { field.Identity = 'D'; }
+                }
+                else if (robot.polc == null && field.Identity == 'P') {
+
+                    field.Content = robot.energy.ToString();
+                    if (robot.dir == 0) { field.Identity = '0'; }
+                    else if (robot.dir == 1) { field.Identity = '1'; }
+                    else if (robot.dir == 2) { field.Identity = '2'; }
+                    else if (robot.dir == 3) { field.Identity = '3'; }
+                }
+                else 
+                {
+                    field.Content = robot.energy.ToString();
+                    if (robot.dir == 0) { field.Identity = 'J'; }
+                    else if (robot.dir == 1) { field.Identity = 'F'; }
+                    else if (robot.dir == 2) { field.Identity = 'B'; }
+                    else if (robot.dir == 3) { field.Identity = 'L'; }
+
+                }
             }
 
         }
@@ -158,6 +192,7 @@ namespace Newmazon.ViewModel
                 {
                     Fields.Add(new NewmazonField
                     {
+                        Content = "",
                         Identity = 'M',
                         X = i,
                         Y = j,

@@ -75,7 +75,7 @@ namespace Newmazon
             _view.Show();
 
             _timer = new DispatcherTimer();
-            _timer.Interval = new TimeSpan(0, 0, 0, 0, 200);
+            _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             _timer.Tick += Timer_Tick;
             _timer.Start();
         }

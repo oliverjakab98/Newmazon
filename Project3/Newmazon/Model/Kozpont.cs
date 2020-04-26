@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newmazon.Persistence;
 using System.Diagnostics;
+using System.Windows.Media.Animation;
 
 namespace Newmazon.Model
 {
@@ -14,7 +15,7 @@ namespace Newmazon.Model
         //public List<List<NewmazonClasses>> table;
         public NewmazonClasses[,] table;
         public List<Robot> robots;
-        private List<Stack<Step>> paths;
+        private List<List<Step>> paths;
         private int startingEnergy;
         public List<Goods> goods;
         private int totalEnergyUsed;
@@ -91,10 +92,10 @@ namespace Newmazon.Model
 
             goods = data.goods;
 
-            paths = new List<Stack<Step>>(robots.Count);
+            paths = new List<List<Step>>(robots.Count);
             for (int i=0;i<robots.Count;++i)
             {
-                paths.Add(new Stack<Step>());
+                paths.Add(new List<Step>());
             }
 
             foreach (Goods good in data.goods)
@@ -117,27 +118,27 @@ namespace Newmazon.Model
                 {
                     if (paths[i].Count > 0)
                     {
-                        if (robots[i].x == paths[i].First().x &&
-                            robots[i].y == paths[i].First().y &&
-                            robots[i].dir == paths[i].First().dir)
+                        if (robots[i].x == paths[i][0].x &&
+                            robots[i].y == paths[i][0].y &&
+                            robots[i].dir == paths[i][0].dir)
                         {
-                            paths[i].Pop();
+                            paths[i].RemoveAt(0);
                         }
-                        else if (robots[i].dir != paths[i].First().dir)
+                        else if (robots[i].dir != paths[i][0].dir)
                         {
-                            robots[i].dir = paths[i].First().dir;
+                            robots[i].dir = paths[i][0].dir;
                             robots[i].energy--;
                             robotEnergyUsed[i]++;
                             totalEnergyUsed++;
                         }
                         else
                         {
-                            robots[i].x = paths[i].First().x;
-                            robots[i].y = paths[i].First().y;
+                            robots[i].x = paths[i][0].x;
+                            robots[i].y = paths[i][0].y;
                             robots[i].energy--;
                             robotEnergyUsed[i]++;
                             totalEnergyUsed++;
-                            paths[i].Pop();
+                            paths[i].RemoveAt(0);
                         }
 
                     }
@@ -209,7 +210,7 @@ namespace Newmazon.Model
                         }
                     }
                 }
-                robot.stop += 2;
+                //robot.stop+=2;
             }
 
             if (table[robot.x, robot.y].ID > 30000 && table[robot.x, robot.y].ID < 40001)   // ha töltőállomáson van, várjon 5 ticket hogy feltöltsön
@@ -218,7 +219,7 @@ namespace Newmazon.Model
                 robot.energy = startingEnergy;
             }
 
-            if (table[robot.x,robot.y].ID > 20000 && table[robot.x,robot.y].ID < 30001)   // ha polc helyen van nincs rajta polc, vegye fel a polcot, ha pedig van rajta polc, akkor rakja le
+            if (table[robot.x,robot.y].ID > 20000 && table[robot.x,robot.y].ID < 30001)   // ha polc helyen van nincs rajta polc, vegye fel a polcot, ha pedig van üres rajta polc, akkor rakja le
             {
                 if (robot.polc == null)
                 {
@@ -228,7 +229,7 @@ namespace Newmazon.Model
                         robot.polc.otthon = false;
                     }
                 }
-                else
+                else if (robot.polc.goods.Count == 0)
                 {
                     robot.polc.otthon = true;
                     robot.polc = null;
@@ -331,6 +332,14 @@ namespace Newmazon.Model
             return null;
         }
 
+        public void AddStop(Robot robot,int amount)
+        {
+            for (int i=0;i<amount;++i)
+            {
+                paths[robot.ID - 40001].Add(new Step(robot.x, robot.y, robot.dir));
+            }
+        }
+
         public int getRobotEnergy(int i)
         {
             return robotEnergyUsed[i];
@@ -344,14 +353,20 @@ namespace Newmazon.Model
             public Astar pi;   //mindenki tudja, hogy mi az a pí
             public int sd;   //start distance
             public Astar[] neighbours;
+            public List<int> blocked;
+            public int steps;
 
             public Astar(NewmazonClasses field, NewmazonClasses target)
             {
-                neighbours = new Astar[4];
+                neighbours = new Astar[5];
+                blocked = new List<int>();
+                steps = 1000000;
                 tile = field;
+
                 td = Math.Abs(target.x - field.x) + Math.Abs(target.y - field.y);
                 //td = (int)Math.Sqrt((target.x - field.x) * (target.x - field.x) + (target.y - field.y) * (target.y - field.y));
                 sd = 1000000; 
+
                 pi = null;
                 dir = -1;
             }
@@ -361,6 +376,39 @@ namespace Newmazon.Model
         {
             List<Astar> prioQ = new List<Astar>();
 
+            List<int>[,] blocks = new List<int>[tableSize, tableSize];
+
+            for (int i = 0; i < tableSize; ++i)
+            {
+                for (int j = 0; j < tableSize; ++j)
+                {
+                    blocks[i, j] = new List<int>();
+                }
+            }
+
+            for (int i = 0; i < robots.Count; ++i)
+            {
+                if (paths[i].Count > 0)
+                {
+                    int steps = 0;
+                    blocks[paths[i][0].x, paths[i][0].y].Add(steps);
+                    blocks[paths[i][0].x, paths[i][0].y].Add(steps+1);
+                    steps++;
+                    for (int j = 1; j < paths[i].Count; ++j)
+                    {
+                        if (paths[i][j].dir != paths[i][j - 1].dir)
+                        {
+                            blocks[paths[i][j - 1].x, paths[i][j - 1].y].Add(steps);
+                            steps++;
+                        }
+                        blocks[paths[i][j].x, paths[i][j].y].Add(steps);
+                        blocks[paths[i][j].x, paths[i][j].y].Add(steps+1);
+                        steps++;
+                    }
+                }
+            }
+
+
             for (int i=0;i<tableSize;++i)
             {
                 for (int j=0;j<tableSize;++j)
@@ -369,14 +417,17 @@ namespace Newmazon.Model
                     if (((0 < ID && ID < 10001) || (20000 < ID && ID < 30001 && robot.polc == null)) && table[robot.x,robot.y].ID != ID)
                     {
                         Astar a = new Astar(table[i,j], target);
+                        a.blocked = blocks[i, j];
                         prioQ.Add(a);
 
                     }
                     else if (table[robot.x,robot.y].ID == ID)
                     {
                         Astar a = new Astar(table[i,j], target);
+                        a.blocked = blocks[i, j];
                         a.sd = 0;
                         a.dir = robot.dir;
+                        a.steps = 0;
                         prioQ.Add(a);
                     }
                 }
@@ -404,6 +455,7 @@ namespace Newmazon.Model
                         a.neighbours[3] = b;
                     }
                 }
+                a.neighbours[4] = a;
             }
 
             prioQ = prioQ.OrderBy(o => o.sd+o.td).ToList();
@@ -415,28 +467,34 @@ namespace Newmazon.Model
             {
                 Astar v = u.neighbours[0];
                 int dirC = 0;
+                int stepC = 0;
                 if (v != null)
                 {
                     switch (u.dir)
                     {
                         case 0:
                             dirC = 0;
+                            stepC = 0;
                             break;
                         case 1:
                             dirC = 1;
+                            stepC = 1;
                             break;
                         case 2:
                             dirC = 2;
+                            stepC = 1;
                             break;
                         case 3:
                             dirC = 1;
+                            stepC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC - 1) && !v.blocked.Contains(u.steps + stepC) && !v.blocked.Contains(u.steps + stepC + 1) && !v.blocked.Contains(u.steps + stepC + 2) && !v.blocked.Contains(u.steps + stepC + 3))
                     {
                         v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 0;
+                        v.steps = u.steps + stepC + 1;
                     }
                 }
                 v = u.neighbours[1];
@@ -446,22 +504,27 @@ namespace Newmazon.Model
                     {
                         case 0:
                             dirC = 1;
+                            stepC = 1;
                             break;
                         case 1:
                             dirC = 0;
+                            stepC = 0;
                             break;
                         case 2:
                             dirC = 1;
+                            stepC = 1;
                             break;
                         case 3:
                             dirC = 2;
+                            stepC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC - 1) && !v.blocked.Contains(u.steps + stepC) && !v.blocked.Contains(u.steps + stepC + 1) && !v.blocked.Contains(u.steps + stepC + 2) && !v.blocked.Contains(u.steps + stepC + 3))
                     {
                         v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 1;
+                        v.steps = u.steps + stepC + 1;
                     }
                 }
                 v = u.neighbours[2];
@@ -471,22 +534,27 @@ namespace Newmazon.Model
                     {
                         case 0:
                             dirC = 2;
+                            stepC = 1;
                             break;
                         case 1:
                             dirC = 1;
+                            stepC = 1;
                             break;
                         case 2:
                             dirC = 0;
+                            stepC = 0;
                             break;
                         case 3:
                             dirC = 1;
+                            stepC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC - 1) && !v.blocked.Contains(u.steps + stepC) && !v.blocked.Contains(u.steps + stepC + 1) && !v.blocked.Contains(u.steps + stepC + 2) && !v.blocked.Contains(u.steps + stepC + 3))
                     {
                         v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 2;
+                        v.steps = u.steps + stepC + 1;
                     }
                 }
                 v = u.neighbours[3];
@@ -496,34 +564,66 @@ namespace Newmazon.Model
                     {
                         case 0:
                             dirC = 1;
+                            stepC = 1;
                             break;
                         case 1:
                             dirC = 2;
+                            stepC = 1;
                             break;
                         case 2:
                             dirC = 1;
+                            stepC = 1;
                             break;
                         case 3:
                             dirC = 0;
+                            stepC = 0;
                             break;
                     }
-                    if (u.sd + u.td + dirC + 1 < v.sd + v.td)
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC - 1) && !v.blocked.Contains(u.steps + stepC) && !v.blocked.Contains(u.steps + stepC + 1) && !v.blocked.Contains(u.steps + stepC + 2) && !v.blocked.Contains(u.steps + stepC + 3))
                     {
                         v.sd = u.sd + dirC + 1;
                         v.pi = u;
                         v.dir = 3;
+                        v.steps = u.steps + stepC + 1;
                     }
                 }
-                prioQ = prioQ.OrderBy(o => o.sd + o.td).ToList();
 
+                prioQ = prioQ.OrderBy(o => o.sd + o.td).ToList();
                 u = prioQ[0];
+                if (u.sd > 100000)
+                {
+                    AddStop(robot, 1);
+                    return;
+                }
                 prioQ.RemoveAt(0);
+
+                /*Astar newA = new Astar(u.tile, target);
+
+                newA.blocked = u.blocked;
+                newA.steps = u.steps + 1;
+                newA.dir = u.dir;
+                newA.neighbours = u.neighbours;
+                if (u.neighbours[0] != null) newA.neighbours[0].neighbours[2] = newA;
+                if (u.neighbours[1] != null) newA.neighbours[1].neighbours[3] = newA;
+                if (u.neighbours[2] != null) newA.neighbours[2].neighbours[0] = newA;
+                if (u.neighbours[3] != null) newA.neighbours[3].neighbours[1] = newA;
+                newA.neighbours[4] = newA;
+
+                newA.sd = u.sd + 1;
+
+                prioQ.Add(newA);*/
             }
 
+            int endDir = u.dir;
             while (u.pi != null)
             {
-                paths[robot.ID-40001].Push(new Step(u.tile.x, u.tile.y, u.dir));
+                paths[robot.ID-40001].Add(new Step(u.tile.x, u.tile.y, u.dir));
                 u = u.pi;
+            }
+            paths[robot.ID - 40001].Reverse();
+            if (table[target.x,target.y].ID > 10000 && table[target.x, target.y].ID < 20001)
+            {
+                paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
             }
 
         }
