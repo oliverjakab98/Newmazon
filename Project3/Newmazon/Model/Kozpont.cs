@@ -22,6 +22,7 @@ namespace Newmazon.Model
         private int totalSteps;
         private int goodsDelivered;
         private List<int> robotEnergyUsed;
+        public AllData savedData;
 
         public int TotalEnergyUsed { get { return totalEnergyUsed; } }
         public int TotalSteps { get { return totalSteps; } }
@@ -41,6 +42,8 @@ namespace Newmazon.Model
 
         public void NewSimulation(AllData data)
         {
+            savedData = new AllData();
+            savedData = data;
             int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001;
             totalEnergyUsed = 0;
             totalSteps = 0;
@@ -90,7 +93,13 @@ namespace Newmazon.Model
                 }
             }
 
-            goods = data.goods;
+            goods = new List<Goods>();
+            foreach (Goods good in data.goods)
+            {
+                goods.Add(good);
+            }
+
+            //goods = data.goods;
 
             paths = new List<List<Step>>(robots.Count);
             for (int i=0;i<robots.Count;++i)
