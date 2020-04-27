@@ -5,7 +5,7 @@ stages:
   - build
   - test
 
-script: cd Project3
+cd Project3
 
 before_script:
   - dotnet --version
