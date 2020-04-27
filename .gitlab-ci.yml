@@ -13,6 +13,12 @@ before_script:
   - dotnet restore
 
 # Build
+build_egesz:
+  stage: build
+  script:
+    - dotnet build Newmazon
+
+# Test
 test_model:
   stage: test
   script:
