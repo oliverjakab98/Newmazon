@@ -4,17 +4,10 @@ image: mono:4.4.0.182
 stages:
   - build
 
-
-
-before_script:
-  - cd Project3
-
-
-
-
 # Build
 build_egesz:
   stage: build
   script:
+    - cd Project3
     - MONO_IOMAP=case xbuild/t:Build/p:Configuration="Debug"/p:Platform="x86" Newmazon.sln
     
