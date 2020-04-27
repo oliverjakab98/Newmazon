@@ -215,7 +215,6 @@ namespace Newmazon.Model
 
             if (table[robot.x, robot.y].ID > 30000 && table[robot.x, robot.y].ID < 40001)   // ha töltőállomáson van, várjon 5 ticket hogy feltöltsön
             {
-                robot.stop += 5;
                 robot.energy = startingEnergy;
             }
 
@@ -392,13 +391,14 @@ namespace Newmazon.Model
                 {
                     int steps = 0;
                     blocks[paths[i][0].x, paths[i][0].y].Add(steps);
-                    blocks[paths[i][0].x, paths[i][0].y].Add(steps+1);
+                    blocks[paths[i][0].x, paths[i][0].y].Add(steps + 1);
                     steps++;
                     for (int j = 1; j < paths[i].Count; ++j)
                     {
                         if (paths[i][j].dir != paths[i][j - 1].dir)
                         {
                             blocks[paths[i][j - 1].x, paths[i][j - 1].y].Add(steps);
+                            blocks[paths[i][j - 1].x, paths[i][j - 1].y].Add(steps + 1);
                             steps++;
                         }
                         blocks[paths[i][j].x, paths[i][j].y].Add(steps);
@@ -432,7 +432,9 @@ namespace Newmazon.Model
                     }
                 }
             }
-            prioQ.Add(new Astar(target, target));
+            Astar fin = new Astar(target, target);
+            fin.blocked = blocks[target.x, target.y];
+            prioQ.Add(fin);
 
             foreach (Astar a in prioQ)
             {
@@ -590,7 +592,7 @@ namespace Newmazon.Model
 
                 prioQ = prioQ.OrderBy(o => o.sd + o.td).ToList();
                 u = prioQ[0];
-                if (u.sd > 100000)
+                if (u.sd > 10000)
                 {
                     AddStop(robot, 1);
                     return;
@@ -615,15 +617,48 @@ namespace Newmazon.Model
             }
 
             int endDir = u.dir;
-            while (u.pi != null)
+
+            if (table[target.x, target.y].ID > 10000 && table[target.x, target.y].ID < 20001)
             {
-                paths[robot.ID-40001].Add(new Step(u.tile.x, u.tile.y, u.dir));
-                u = u.pi;
+                Astar w1 = new Astar(u.tile, target);
+                w1.blocked = u.blocked;
+                w1.steps = u.steps + 1;
+
+                Astar w2 = new Astar(u.tile, target);
+                w2.blocked = w1.blocked;
+                w2.steps = w1.steps + 1;
+
+                if (!w1.blocked.Contains(w1.steps - 1) && !w1.blocked.Contains(w1.steps) && !w1.blocked.Contains(w1.steps + 1) && !w1.blocked.Contains(w1.steps + 2) && !w1.blocked.Contains(w1.steps + 3) &&
+                    !w2.blocked.Contains(w2.steps - 1) && !w2.blocked.Contains(w2.steps) && !w2.blocked.Contains(w2.steps + 1) && !w2.blocked.Contains(w2.steps + 2) && !w2.blocked.Contains(w2.steps + 3))
+                {
+                    while (u.pi != null)
+                    {
+                        paths[robot.ID - 40001].Add(new Step(u.tile.x, u.tile.y, u.dir));
+                        u = u.pi;
+                    }
+                    paths[robot.ID - 40001].Reverse();
+                }
+                else
+                {
+                    AddStop(robot, 1);
+                    return;
+                }
             }
-            paths[robot.ID - 40001].Reverse();
-            if (table[target.x,target.y].ID > 10000 && table[target.x, target.y].ID < 20001)
+            else
             {
-                paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
+                while (u.pi != null)
+                {
+                    paths[robot.ID - 40001].Add(new Step(u.tile.x, u.tile.y, u.dir));
+                    u = u.pi;
+                }
+                paths[robot.ID - 40001].Reverse();
+                if (table[target.x, target.y].ID > 30000 && table[target.x, target.y].ID < 40001)
+                {
+                    paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
+                    paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
+                    paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
+                    paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
+                }
             }
 
         }
