@@ -487,12 +487,12 @@ namespace Newmazon.Model
                 a.neighbours[4] = a;
             }
 
-            prioQ = prioQ.OrderBy(o => o.sd+o.td).ToList();
+            prioQ = prioQ.OrderBy(o => (o.sd+o.td)).ToList();
 
             Astar u = prioQ[0];
             prioQ.RemoveAt(0);
 
-            while (u.tile != target && prioQ.Count>0)
+            while (u.tile != target)
             {
                 Astar v = u.neighbours[0];
                 int dirC = 0;
