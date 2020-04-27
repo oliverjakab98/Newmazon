@@ -1,5 +1,5 @@
 # Default image (https://hub.docker.com/_/microsoft-dotnet-core-sdk/)
-image: mcr.microsoft.com/dotnet/core/sdk:3.1
+image: mono:4.4.0.182
 
 stages:
   - build
@@ -12,20 +12,19 @@ before_script:
   - cd Project3
   - dotnet restore
 
-# Test
-test_model:
-  stage: test
-  script:
-    - dotnet test NewmazonUnitTest
+
 
 
 # Build
 build_egesz:
   stage: build
   script:
-    - cd Newmazon
-    - dotnet build Model
-    - cd ..
+    - MONO_IOMAP=case xbuild/t:Build/p:Configuration="Debug"/p:Platform="x86"
+    Newmazon.sln
 
-
+# Test
+test_model:
+  stage: test
+  script:
+    - dotnet test NewmazonUnitTest
 
