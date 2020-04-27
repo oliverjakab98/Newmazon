@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
             <MenuItem Header="Fájl">
-                <MenuItem Header="Jelenlegi szimuláció újraindítása" />
+                <MenuItem Header="Jelenlegi szimuláció újraindítása" Command="{Binding RessimCommand}" />
                 <MenuItem Header="Új szimuláció" Command="{Binding NewsimCommand}"/>
                 <Separator />
                 <MenuItem Header="Kilépés" Command="{Binding ExitCommand}" />
@@ -34,37 +34,151 @@
             <ItemsControl.ItemTemplate>
                 <!--az elemek labelek lesznek-->
                 <DataTemplate>
-                    <Label Focusable="False" RenderTransformOrigin="0.5, 0.5" BorderBrush="Black" Padding="2" BorderThickness="1">
+                    <Label Content="{Binding Content}" Focusable="False" RenderTransformOrigin="0.5, 0.5" BorderBrush="Black" Padding="2" BorderThickness="1">
                         <!-- label háttérszíne -->
                         <Label.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1" />
                         </Label.RenderTransform>
                         <Label.Style>
+                            <!-- CHAR TIPÚS MIKOR MILYEN MEZŐ! -->
+                            <!-- M -> MEZŐ -->
+                            <!-- W -> FAL -->
+                            <!-- P -> POLC -->
+                            <!-- T -> TÖLTŐÁLLOMÁS -->
+                            <!-- C -> LEADÁSI PONT -->
+                            
+                            <!-- !!!ROBOTOK!!! -->
+                            <!-- F -> SIMÁN ROBOT FEL -->
+                            <!-- J -> SIMÁN ROBOT JOBB -->
+                            <!-- L -> SIMÁN ROBOT LE -->
+                            <!-- B -> SIMÁN ROBOT BAL -->
+
+                            <!-- E -> POLCCAL ROBOT FEL -->
+                            <!-- K -> POLCCAL ROBOT JOBB -->
+                            <!-- D -> POLCCAL ROBOT LE -->
+                            <!-- N -> POLCCAL ROBOT BAL -->
+
+                            <!-- 1 -> POLC ALATT ROBOT FEL -->
+                            <!-- 0 -> POLC ALATT ROBOT JOBB -->
+                            <!-- 2 -> POLC ALATT ROBOT LE -->
+                            <!-- 3 -> POLC ALATT ROBOT BAL -->
                             <Style TargetType="Label">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Identity}" Value="M"> <!-- Sima mező -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="M">
+                                        <!-- Sima mező -->
                                         <Setter Property="Background" Value="White" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="F"> <!-- Fal -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="W">
+                                        <!-- Fal -->
                                         <Setter Property="Background" Value="Black" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="R"> <!-- Robot -->
-                                        <Setter Property="Background" Value="Yellow" />
+                                    <DataTrigger Binding="{Binding Identity}" Value="F">
+                                        <!-- Robot felfele simán -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="s_fel.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="P"> <!-- Polc -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="J">
+                                        <!-- Robot jobbra simán -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="s_jobb.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="L">
+                                        <!-- Robot lefele simán -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="s_le.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="B">
+                                        <!-- Robot balra simán -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="s_bal.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="P">
+                                        <!-- Polc -->
                                         <Setter Property="Background" Value="Gray" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="T"> <!-- Töltőállomás -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="T">
+                                        <!-- Töltőállomás -->
                                         <Setter Property="Background" Value="Blue" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="C"> <!-- Leadási pont -->
+                                    <DataTrigger Binding="{Binding Identity}" Value="C">
+                                        <!-- Leadási pont -->
                                         <Setter Property="Background" Value="Green" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="A"> <!-- Robot polc alatt -->
-                                        <Setter Property="Background" Value="Orange" />
+                                    <DataTrigger Binding="{Binding Identity}" Value="0">
+                                        <!-- Robot felfele polc alatt -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="n_jobb.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Identity}" Value="V"> <!-- Robot viszi a polcot -->
-                                        <Setter Property="Background" Value="Red" />
+                                    <DataTrigger Binding="{Binding Identity}" Value="1">
+                                        <!-- Robot jobbra polc alatt -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="n_fel.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="2">
+                                        <!-- Robot lefele polc alatt -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="n_bal.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="3">
+                                        <!-- Robot balra polc alatt -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="n_le.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="E">
+                                        <!-- Robot felfele polccal -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="p_fel.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="K">
+                                        <!-- Robot jobbra polccal -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="p_jobb.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="D">
+                                        <!-- Robot lefele polccal -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="p_le.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Identity}" Value="N">
+                                        <!-- Robot balra polccal -->
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="p_bal.jpg"/>
+                                            </Setter.Value>
+                                        </Setter>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -80,6 +194,30 @@
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
-
+        <StatusBar Grid.Row="2">
+            <!-- státuszsor a lépésszámhoz, a leadott áruk számához, és az összesen elhasznált energiához -->
+            <StatusBarItem>
+                <TextBlock Text="Lépésszám: " />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding StepCount}" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Text="Leadott termékek száma: " />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding DeliveredGoods}" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem>
+                <TextBlock Text="Összes fogyasztás: " />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding TotalEnergyUsed}" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem />
+        </StatusBar>
     </Grid>
 </Window>

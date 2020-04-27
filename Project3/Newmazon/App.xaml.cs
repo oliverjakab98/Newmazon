@@ -13,6 +13,7 @@ using Newmazon.Model;
 using Newmazon.Persistence;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.IO;
 
 namespace Newmazon
 {
@@ -62,10 +63,12 @@ namespace Newmazon
             AllData data = new AllData(dt, g, tS, rE);
 
             _model._kozpont.NewSimulation(data);
+            
 
             _viewModel = new NewmazonViewModel(_model);
             _viewModel.ExitApp += new EventHandler(ViewModel_ExitApp);
             _viewModel.NewSim += new EventHandler(MenuFileNewSim_Click);
+            _viewModel.ResSim += new EventHandler(MenuFileRestartSim_Click);
             _viewModel.TimeRestart += new EventHandler(ViewModel_TimeRestart);
 
             _view = new MainWindow();
@@ -74,8 +77,14 @@ namespace Newmazon
             _view.Show();
 
             _timer = new DispatcherTimer();
-            _timer.Interval = new TimeSpan(0, 0, 0, 0, 200);
+            _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             _timer.Tick += Timer_Tick;
+            _timer.Start();
+        }
+
+        private void MenuFileRestartSim_Click(Object sender, EventArgs e) 
+        {
+            _model._kozpont.NewSimulation(_model._kozpont.savedData);
             _timer.Start();
         }
 
@@ -116,6 +125,16 @@ namespace Newmazon
         private void Model_SimOver(object sender, NewmazonEventArgs e)
         {
             _timer.Stop();
+            string path = AppDomain.CurrentDomain.BaseDirectory + "/latestLog.txt";
+            using (StreamWriter sw = File.CreateText(path))
+            {
+                sw.WriteLine("Lépésszám: " + _model._kozpont.TotalSteps.ToString());
+                sw.WriteLine("Összes energiahasználat: " + _model._kozpont.TotalEnergyUsed.ToString());
+                for(int i = 0; i < _model._kozpont.TotalRobots; i++)
+                {
+                    sw.WriteLine((i+1).ToString() + ". robot energiahasználata: " + _model._kozpont.getRobotEnergy(i));
+                }
+            }
             MessageBox.Show("Szimuláció vége!", "NewMazon", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
