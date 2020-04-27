@@ -5,6 +5,8 @@ stages:
   - build
   - test
 
+script: cd Project3
+
 before_script:
   - dotnet --version
   - dotnet restore
@@ -13,6 +15,6 @@ before_script:
 test_model:
   stage: test
   script:
-    - dotnet test Project3/NewmazonUnitTest
+    - dotnet test NewmazonUnitTest
 
 
