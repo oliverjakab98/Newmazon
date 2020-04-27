@@ -10,9 +10,9 @@ before_script:
   - dotnet restore
 
 # Build
-build_model:
-  stage: build
+test_model:
+  stage: test
   script:
-    - dotnet build Project3
+    - dotnet test Project3/NewmazonUnitTest
 
 
