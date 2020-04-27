@@ -296,7 +296,16 @@ namespace Newmazon.Model
                 }
                 else
                 {
-                    return table[robot.x, robot.y];
+                    for (int i = 0; i < tableSize; ++i)
+                    {
+                        for (int j = 0; j < tableSize; ++j)
+                        {
+                            if (table[i, j].ID == robot.ID - 10000)
+                            {
+                                return table[i, j];
+                            }
+                        }
+                    }
                 }
             }
 
@@ -310,7 +319,16 @@ namespace Newmazon.Model
                 }
                 else
                 {
-                    return table[robot.x, robot.y];
+                    for (int i = 0; i < tableSize; ++i)
+                    {
+                        for (int j = 0; j < tableSize; ++j)
+                        {
+                            if (table[i, j].ID == robot.ID - 10000)
+                            {
+                                return table[i, j];
+                            }
+                        }
+                    }
                 }
             }
 
@@ -591,29 +609,37 @@ namespace Newmazon.Model
                 }
 
                 prioQ = prioQ.OrderBy(o => o.sd + o.td).ToList();
-                u = prioQ[0];
-                if (u.sd > 10000)
+
+                if (prioQ[0].sd > 10000)
                 {
-                    AddStop(robot, 1);
-                    return;
+                    Astar newA = new Astar(u.tile, target);
+
+                    newA.blocked = u.blocked;
+                    newA.steps = u.steps + 1;
+                    newA.neighbours = u.neighbours;
+                    if (u.neighbours[0] != null) newA.neighbours[0].neighbours[2] = newA;
+                    if (u.neighbours[1] != null) newA.neighbours[1].neighbours[3] = newA;
+                    if (u.neighbours[2] != null) newA.neighbours[2].neighbours[0] = newA;
+                    if (u.neighbours[3] != null) newA.neighbours[3].neighbours[1] = newA;
+
+                    if (!newA.blocked.Contains(newA.steps - 1) && !newA.blocked.Contains(newA.steps) && !newA.blocked.Contains(newA.steps + 1) && !newA.blocked.Contains(newA.steps + 2) && !newA.blocked.Contains(newA.steps + 3))
+                    {
+                        newA.sd = u.sd + 1;
+                        newA.dir = u.dir;
+                        newA.pi = u;
+                        u = newA;
+                    }
+                    else
+                    {
+                        AddStop(robot, 1);
+                        return;
+                    }
                 }
-                prioQ.RemoveAt(0);
-
-                /*Astar newA = new Astar(u.tile, target);
-
-                newA.blocked = u.blocked;
-                newA.steps = u.steps + 1;
-                newA.dir = u.dir;
-                newA.neighbours = u.neighbours;
-                if (u.neighbours[0] != null) newA.neighbours[0].neighbours[2] = newA;
-                if (u.neighbours[1] != null) newA.neighbours[1].neighbours[3] = newA;
-                if (u.neighbours[2] != null) newA.neighbours[2].neighbours[0] = newA;
-                if (u.neighbours[3] != null) newA.neighbours[3].neighbours[1] = newA;
-                newA.neighbours[4] = newA;
-
-                newA.sd = u.sd + 1;
-
-                prioQ.Add(newA);*/
+                else
+                {
+                    u = prioQ[0];
+                    prioQ.RemoveAt(0);
+                }
             }
 
             int endDir = u.dir;
