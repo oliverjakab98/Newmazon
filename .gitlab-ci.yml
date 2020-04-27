@@ -19,8 +19,8 @@ before_script:
 build_egesz:
   stage: build
   script:
-    - MONO_IOMAP=case xbuild/t:Build/p:Configuration="Debug"/p:Platform="x86"
-    Newmazon.sln
+    - MONO_IOMAP=case xbuild/t:Build/p:Configuration="Debug"/p:Platform="x86" Newmazon.sln
+    
 
 # Test
 test_model:
