@@ -3,14 +3,11 @@ image: mono:4.4.0.182
 
 stages:
   - build
-  - test
 
 
 
 before_script:
-  - dotnet --version
   - cd Project3
-  - dotnet restore
 
 
 
@@ -21,10 +18,3 @@ build_egesz:
   script:
     - MONO_IOMAP=case xbuild/t:Build/p:Configuration="Debug"/p:Platform="x86" Newmazon.sln
     
-
-# Test
-test_model:
-  stage: test
-  script:
-    - dotnet test NewmazonUnitTest
-
