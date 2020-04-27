@@ -5,10 +5,11 @@ stages:
   - build
   - test
 
-cd Project3
+
 
 before_script:
   - dotnet --version
+  - cd Project3
   - dotnet restore
 
 # Build
