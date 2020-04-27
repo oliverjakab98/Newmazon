@@ -12,6 +12,13 @@ before_script:
   - cd Project3
   - dotnet restore
 
+# Test
+test_model:
+  stage: test
+  script:
+    - dotnet test NewmazonUnitTest
+
+
 # Build
 build_egesz:
   stage: build
@@ -20,10 +27,5 @@ build_egesz:
     - dotnet build Model
     - cd ..
 
-# Test
-test_model:
-  stage: test
-  script:
-    - dotnet test NewmazonUnitTest
 
 
