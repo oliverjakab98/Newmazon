@@ -1,3 +1,6 @@
+# Default image (https://hub.docker.com/_/microsoft-dotnet-core-sdk/)
+image: mcr.microsoft.com/dotnet/core/sdk:2.1
+
 stages:
   - build
   - test
