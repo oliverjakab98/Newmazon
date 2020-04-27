@@ -15,11 +15,7 @@ before_script:
 
 
 
-# Build
-build_egesz:
-  stage: build
-  script:
-    - dotnet build Newmazon
+
 
 
 # Test
