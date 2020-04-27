@@ -16,7 +16,9 @@ before_script:
 build_egesz:
   stage: build
   script:
-    - dotnet build Newmazon\Model
+    - cd Newmazon
+    - dotnet build Model
+    - cd ..
 
 # Test
 test_model:
