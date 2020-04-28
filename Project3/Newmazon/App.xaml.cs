@@ -63,10 +63,12 @@ namespace Newmazon
             AllData data = new AllData(dt, g, tS, rE);
 
             _model._kozpont.NewSimulation(data);
+            
 
             _viewModel = new NewmazonViewModel(_model);
             _viewModel.ExitApp += new EventHandler(ViewModel_ExitApp);
             _viewModel.NewSim += new EventHandler(MenuFileNewSim_Click);
+            _viewModel.ResSim += new EventHandler(MenuFileRestartSim_Click);
             _viewModel.TimeRestart += new EventHandler(ViewModel_TimeRestart);
 
             _view = new MainWindow();
@@ -77,6 +79,12 @@ namespace Newmazon
             _timer = new DispatcherTimer();
             _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
             _timer.Tick += Timer_Tick;
+            _timer.Start();
+        }
+
+        private void MenuFileRestartSim_Click(Object sender, EventArgs e) 
+        {
+            _model._kozpont.NewSimulation(_model._kozpont.savedData);
             _timer.Start();
         }
 
