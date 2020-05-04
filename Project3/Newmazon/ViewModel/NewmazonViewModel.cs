@@ -32,6 +32,9 @@ namespace Newmazon.ViewModel
         public DelegateCommand RessimCommand { get; private set; }
         public DelegateCommand UpdateTable { get; private set; }
 
+        public DelegateCommand SpeedUpCommand { get; private set; }
+        public DelegateCommand SlowDownCommand { get; private set; }
+
         public int Size1 { get; private set; }
         public int Size2 { get; private set; }
 
@@ -48,6 +51,8 @@ namespace Newmazon.ViewModel
         public event EventHandler NewSim;
         public event EventHandler ResSim;
         public event EventHandler TimeRestart;
+        public event EventHandler SpeedUp;
+        public event EventHandler SlowDown;
         #endregion
 
         #region Constructors
@@ -65,6 +70,8 @@ namespace Newmazon.ViewModel
             ExitCommand = new DelegateCommand(param => OnExitApp());
             NewsimCommand = new DelegateCommand(param => OnNewsim());
             RessimCommand = new DelegateCommand(param => RestartSim());
+            SpeedUpCommand = new DelegateCommand(param => OnSpeedUp());
+            SlowDownCommand = new DelegateCommand(param => OnSlowDown());
             model.SimCreated += new EventHandler<NewmazonEventArgs>(Model_SimCreated);
             model.SimAdvanced += new EventHandler<NewmazonEventArgs>(Model_SimAdvanced);
 
@@ -231,6 +238,18 @@ namespace Newmazon.ViewModel
         {
             if (ResSim != null)
                 ResSim(this, EventArgs.Empty);
+        }
+
+        private void OnSpeedUp()
+        {
+            if (SpeedUp != null)
+                SpeedUp(this, EventArgs.Empty);
+        }
+
+        private void OnSlowDown()
+        {
+            if (SlowDown != null)
+                SlowDown(this, EventArgs.Empty);
         }
         #endregion
     }

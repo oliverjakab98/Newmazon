@@ -28,6 +28,8 @@ namespace Newmazon
         private NewmazonViewModel _viewModel;
         private NewmazonModel _model;
         private DispatcherTimer _timer;
+        private int sec;
+        private int ms;
 
         #endregion
 
@@ -42,6 +44,8 @@ namespace Newmazon
         {
             IPersistence dataAccess;
             dataAccess = new NewmazonFileDataAccess(AppDomain.CurrentDomain.BaseDirectory);
+            sec = 0;
+            ms = 500;
 
 
             _model = new NewmazonModel(dataAccess);
@@ -70,6 +74,8 @@ namespace Newmazon
             _viewModel.NewSim += new EventHandler(MenuFileNewSim_Click);
             _viewModel.ResSim += new EventHandler(MenuFileRestartSim_Click);
             _viewModel.TimeRestart += new EventHandler(ViewModel_TimeRestart);
+            _viewModel.SpeedUp += new EventHandler(ViewModel_SpeedUp);
+            _viewModel.SlowDown += new EventHandler(ViewModel_SlowDown);
 
             _view = new MainWindow();
             _view.DataContext = _viewModel;
@@ -77,7 +83,7 @@ namespace Newmazon
             _view.Show();
 
             _timer = new DispatcherTimer();
-            _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+            _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
             _timer.Tick += Timer_Tick;
             _timer.Start();
         }
@@ -85,11 +91,17 @@ namespace Newmazon
         private void MenuFileRestartSim_Click(Object sender, EventArgs e) 
         {
             _model._kozpont.NewSimulation(_model._kozpont.savedData);
+            sec = 0;
+            ms = 500;
+            _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
             _timer.Start();
         }
 
         private async void MenuFileNewSim_Click(Object sender, EventArgs e)
         {
+            sec = 0;
+            ms = 500;
+            _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Simulation files (*.sim)|*.sim";
             if (openFileDialog.ShowDialog() == true) // ha kiválasztottunk egy fájlt
@@ -158,6 +170,44 @@ namespace Newmazon
         private void ViewModel_TimeRestart(object sender, System.EventArgs e)
         {
             _timer.Start(); // ablak bezárása
+        }
+
+        private void ViewModel_SpeedUp(object sender, System.EventArgs e)
+        {
+            ms -= 100;
+            if(sec == 0 && ms == 0)
+            {
+                return;
+            }
+            else if(sec == 0 && ms > 0)
+            {
+                _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
+            }
+            else if(sec == 1)
+            {
+                sec -= 1;
+                ms = 900;
+                _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
+            }
+        }
+
+        private void ViewModel_SlowDown(object sender, System.EventArgs e)
+        {
+            ms += 100;
+            if(sec == 1)
+            {
+                return;
+            }
+            else if (sec == 0 && ms < 1000)
+            {
+                _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
+            }
+            else if(ms == 1000)
+            {
+                sec += 1;
+                ms = 0;
+                _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
+            }
         }
     }
 }
