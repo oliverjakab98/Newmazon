@@ -31,5 +31,10 @@ namespace Newmazon.Persistence
             robotEnergy = _robotEnergy;
         }
 
+        public AllData() 
+        {
+            
+        }
+
     }
 }

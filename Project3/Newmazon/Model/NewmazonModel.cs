@@ -13,6 +13,7 @@ namespace Newmazon.Model
         #region Fields
         public Kozpont _kozpont;
         public IPersistence _dataAccess;
+        public AllData data;
 
         #endregion
 
@@ -51,7 +52,7 @@ namespace Newmazon.Model
             if (_dataAccess == null)
                 throw new InvalidOperationException("No data access is provided.");
 
-            AllData data = await _dataAccess.LoadAsync(path);
+            data = await _dataAccess.LoadAsync(path);
 
             _kozpont.NewSimulation(data);
             OnSimCreated();

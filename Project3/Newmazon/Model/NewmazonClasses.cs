@@ -15,6 +15,7 @@ namespace Newmazon.Model
 
         public List<int> goods = null;
 
+        public bool otthon = true;
 
     }
 }

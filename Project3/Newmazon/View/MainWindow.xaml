@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
             <MenuItem Header="Fájl">
-                <MenuItem Header="Jelenlegi szimuláció újraindítása" />
+                <MenuItem Header="Jelenlegi szimuláció újraindítása" Command="{Binding RessimCommand}" />
                 <MenuItem Header="Új szimuláció" Command="{Binding NewsimCommand}"/>
                 <Separator />
                 <MenuItem Header="Kilépés" Command="{Binding ExitCommand}" />

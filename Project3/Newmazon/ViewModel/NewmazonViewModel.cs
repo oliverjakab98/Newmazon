@@ -29,6 +29,7 @@ namespace Newmazon.ViewModel
         public DelegateCommand ExitCommand { get; private set; }
         public DelegateCommand NewsimCommand { get; private set; }
 
+        public DelegateCommand RessimCommand { get; private set; }
         public DelegateCommand UpdateTable { get; private set; }
 
         public int Size1 { get; private set; }
@@ -45,6 +46,7 @@ namespace Newmazon.ViewModel
         /// </summary>
         public event EventHandler ExitApp;
         public event EventHandler NewSim;
+        public event EventHandler ResSim;
         public event EventHandler TimeRestart;
         #endregion
 
@@ -62,6 +64,7 @@ namespace Newmazon.ViewModel
 
             ExitCommand = new DelegateCommand(param => OnExitApp());
             NewsimCommand = new DelegateCommand(param => OnNewsim());
+            RessimCommand = new DelegateCommand(param => RestartSim());
             model.SimCreated += new EventHandler<NewmazonEventArgs>(Model_SimCreated);
             model.SimAdvanced += new EventHandler<NewmazonEventArgs>(Model_SimAdvanced);
 
@@ -222,6 +225,12 @@ namespace Newmazon.ViewModel
         {
             if (NewSim != null)
                 NewSim(this, EventArgs.Empty);
+        }
+
+        private void RestartSim()
+        {
+            if (ResSim != null)
+                ResSim(this, EventArgs.Empty);
         }
         #endregion
     }
