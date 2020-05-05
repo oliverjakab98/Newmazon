@@ -45,7 +45,7 @@ namespace Newmazon
             IPersistence dataAccess;
             dataAccess = new NewmazonFileDataAccess(AppDomain.CurrentDomain.BaseDirectory);
             sec = 0;
-            ms = 500;
+            ms = 100;
 
 
             _model = new NewmazonModel(dataAccess);
@@ -174,13 +174,13 @@ namespace Newmazon
 
         private void ViewModel_SpeedUp(object sender, System.EventArgs e)
         {
-            ms -= 100;
             if(sec == 0 && ms == 0)
             {
                 return;
             }
-            else if(sec == 0 && ms > 0)
+            else if(sec == 0 && ms > 100)
             {
+                ms -= 100;
                 _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
             }
             else if(sec == 1)
@@ -193,18 +193,18 @@ namespace Newmazon
 
         private void ViewModel_SlowDown(object sender, System.EventArgs e)
         {
-            ms += 100;
             if(sec == 1)
             {
                 return;
             }
-            else if (sec == 0 && ms < 1000)
+            else if(ms < 900)
             {
+                ms += 100;
                 _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
             }
-            else if(ms == 1000)
+            else if(ms == 900)
             {
-                sec += 1;
+                sec = 1;
                 ms = 0;
                 _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
             }
