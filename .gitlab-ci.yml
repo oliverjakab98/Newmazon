@@ -1,5 +1,5 @@
-#image: mcr.microsoft.com/dotnet/core/sdk:3.1
-image: mono:latest
+image: mcr.microsoft.com/dotnet/core/sdk:3.1
+#image: mono:latest
 
 stages:
   - build
@@ -8,9 +8,9 @@ stages:
 
 
 before_script:
-  #- dotnet --version
+  - dotnet --version
   - cd Project3
-  #- dotnet restore
+  - dotnet restore
 
 
 
@@ -19,8 +19,8 @@ before_script:
 build_egesz:
   stage: build
   script:
-    #- dotnet build Newmazon
-     - msbuild Newmazon
+    - dotnet build Newmazon
+    #- msbuild Newmazon
 
 # Test
 #test_model:
