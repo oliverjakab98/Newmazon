@@ -7,7 +7,5 @@ namespace Newmazon.Persistence
     public interface IPersistence
     {
         Task<AllData> LoadAsync(String name);
-
-        Task<ICollection<Simulations>> ListAsync();
     }
 }

@@ -93,5 +93,20 @@ namespace NewmazonUnitTest
 
            
         }
+
+        [TestMethod]
+        public void TotalSteps()
+        {
+            _model._kozpont.NewSimulation(data);
+
+            _model.StepSimulation();
+            _model.StepSimulation();
+            _model.StepSimulation();
+            _model.StepSimulation();
+
+            Assert.IsTrue(_model._kozpont.TotalSteps == 4);
+
+
+        }
     }
 }

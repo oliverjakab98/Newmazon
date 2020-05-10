@@ -1,5 +1,5 @@
 # Default image (https://hub.docker.com/_/microsoft-dotnet-core-sdk/)
-image: mcr.microsoft.com/dotnet/core/sdk:2.1
+image: mcr.microsoft.com/dotnet/core/sdk:3.1
 
 stages:
   - build
@@ -7,12 +7,22 @@ stages:
 
 before_script:
   - dotnet --version
+  - cd Project3
   - dotnet restore
 
 # Build
 build_model:
   stage: build
   script:
-    - dotnet build Newmazon/Model
+    - dotnet build Model
+    
+build_persistence:
+    stage: build
+    script:
+    - dotnet build Persistence
 
-
+# Test
+test_model:
+  stage: test
+  script:
+    - dotnet test NewmazonUnitTest

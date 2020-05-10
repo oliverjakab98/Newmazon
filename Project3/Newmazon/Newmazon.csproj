@@ -63,22 +63,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Model\Celallomas.cs" />
-    <Compile Include="Model\Fal.cs" />
-    <Compile Include="Model\Kozpont.cs" />
-    <Compile Include="Model\Mezo.cs" />
-    <Compile Include="Model\NewmazonClasses.cs" />
-    <Compile Include="Model\NewmazonEventArgs.cs" />
-    <Compile Include="Model\NewmazonModel.cs" />
-    <Compile Include="Model\Polc.cs" />
-    <Compile Include="Model\Robot.cs" />
-    <Compile Include="Model\Step.cs" />
-    <Compile Include="Model\Toltoallmoas.cs" />
-    <Compile Include="Persistence\AllData.cs" />
-    <Compile Include="Persistence\IPersistence.cs" />
-    <Compile Include="Persistence\NewmazonDataException.cs" />
-    <Compile Include="Persistence\NewmazonFileDataAccess.cs" />
-    <Compile Include="Persistence\Simulations.cs" />
     <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="ViewModel\NewmazonField.cs" />
     <Compile Include="ViewModel\NewmazonViewModel.cs" />
@@ -161,6 +145,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="View\p_bal.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Model\Model.csproj">
+      <Project>{1f3ef1fc-99ff-4dc1-80be-655e30836cba}</Project>
+      <Name>Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Persistence\Persistence.csproj">
+      <Project>{577fdabb-bc5e-40f7-9b7e-ba72839c0a61}</Project>
+      <Name>Persistence</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

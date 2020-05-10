@@ -25,10 +25,10 @@ namespace Newmazon
         #region Fields
 
         private MainWindow _view; //Az alkalmazás főablaka
-        private NewmazonViewModel _viewModel;
-        private NewmazonModel _model;
-        private DispatcherTimer _timer;
-        private int sec;
+        private NewmazonViewModel _viewModel; //Az alkalmazás főablakának modelje
+        private NewmazonModel _model; //Az alkalmazás modelje
+        private DispatcherTimer _timer; //Időzétő
+        private int sec; 
         private int ms;
 
         #endregion
@@ -40,17 +40,19 @@ namespace Newmazon
         }
         #endregion
 
+        /// <summary>
+        /// App elindulásakor adatok init-je, eventek kapcsolása, timer elindítása.
+        /// </summary>
         private void App_Startup(object sender, StartupEventArgs e)
         {
             IPersistence dataAccess;
             dataAccess = new NewmazonFileDataAccess(AppDomain.CurrentDomain.BaseDirectory);
             sec = 0;
-            ms = 100;
+            ms = 500;
 
 
             _model = new NewmazonModel(dataAccess);
             _model._kozpont.SimOver += new EventHandler<NewmazonEventArgs>(Model_SimOver);
-            //_model.SimCreated += new EventHandler<NewmazonEventArgs>(Model_SimCreated);
 
             char[,] dt = { {'R', 'M', 'M', 'M', 'M' }, 
                            {'F', 'M', 'P', 'M', 'M' }, 
@@ -124,6 +126,9 @@ namespace Newmazon
             _model.StepSimulation();
         }
 
+        /// <summary>
+        /// App való kilépés.
+        /// </summary>
         private void View_Closing(object sender, CancelEventArgs e)
         {
             _timer.Stop();
@@ -134,6 +139,9 @@ namespace Newmazon
             _timer.Start();
         }
 
+        /// <summary>
+        /// A szimuláció vége.
+        /// </summary>
         private void Model_SimOver(object sender, NewmazonEventArgs e)
         {
             _timer.Stop();
@@ -150,18 +158,6 @@ namespace Newmazon
             MessageBox.Show("Szimuláció vége!", "NewMazon", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
-        /*private void Model_SimCreated(object sender, NewmazonEventArgs e)
-        {
-            _view.DataContext = null;
-
-            _viewModel = null;
-            _viewModel = new NewmazonViewModel(_model);
-            _viewModel.ExitApp += new EventHandler(ViewModel_ExitApp);
-            _viewModel.NewSim += new EventHandler(MenuFileNewSim_Click);
-
-            _view.DataContext = _viewModel;
-        }*/
-
         private void ViewModel_ExitApp(object sender, System.EventArgs e)
         {
             _view.Close(); // ablak bezárása
@@ -172,6 +168,9 @@ namespace Newmazon
             _timer.Start(); // ablak bezárása
         }
 
+        /// <summary>
+        /// A szimuláció felgyorsítása.
+        /// </summary>
         private void ViewModel_SpeedUp(object sender, System.EventArgs e)
         {
             if(sec == 0 && ms == 0)
@@ -191,6 +190,9 @@ namespace Newmazon
             }
         }
 
+        /// <summary>
+        /// A szimuláció lelassítása.
+        /// </summary>
         private void ViewModel_SlowDown(object sender, System.EventArgs e)
         {
             if(sec == 1)

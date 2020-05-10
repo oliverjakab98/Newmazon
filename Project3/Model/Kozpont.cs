@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Newmazon.Persistence;
 using System.Diagnostics;
-using System.Windows.Media.Animation;
 
 namespace Newmazon.Model
 {
@@ -44,15 +43,13 @@ namespace Newmazon.Model
         public void NewSimulation(AllData data)
         {
             savedData = new AllData();
-            savedData = data;
-            int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001;
+            savedData = data;  // adatok betöltése
+            int mID = 1, cID = 10001, pID = 20001, tID = 30001, rID = 40001; //mezo: 1-10000, cel: 10001-20000, polc: 20001-30000, tolto: 30001-40000, robot: 40001-50000
             totalEnergyUsed = 0;
             totalSteps = 0;
             goodsDelivered = 0;
             celallomasCount = 0;
-            //mezo: 1-10000, cel: 10001-20000, polc: 20001-30000, tolto: 30001-40000, robot: 40001-50000
             tableSize = data.tableSize;
-            //table = new List<List<NewmazonClasses>>(tableSize);
             table = new NewmazonClasses[tableSize, tableSize];
             startingEnergy = data.robotEnergy;
             robots = new List<Robot>();
@@ -64,53 +61,50 @@ namespace Newmazon.Model
                 {
                     switch (data.dataTable[i, j])
                     {
-                        case 'R':
+                        case 'R':                               //Robot
                             table[i,j] = new Mezo(mID, i, j);
                             mID++;
                             robots.Add(new Robot(rID, i, j, startingEnergy, 0, null));
                             robotEnergyUsed.Add(0);
                             rID++;
                             break;
-                        case 'M':
+                        case 'M':                               //Mező
                             table[i,j] = new Mezo(mID, i, j);
                             mID++;
                             break;
-                        case 'P':
+                        case 'P':                               //Polc
                             table[i,j] = new Polc(pID, i, j);
                             pID++;
                             break;
-                        case 'T':
+                        case 'T':                               //Töltőállomás
                             table[i,j] = new Toltoallmoas(tID, i, j);
                             tID++;
                             break;
-                        case 'F':
+                        case 'F':                               //Fal
                             table[i,j] = new Fal(0, i, j);
                             break;
-                        case 'C':
+                        case 'C':                               //Célállomás
                             table[i,j] = new Celallomas(cID, i, j);
                             celallomasCount++;
                             cID++;
                             break;
-
                     }
                 }
             }
 
-            goods = new List<Goods>();
+            goods = new List<Goods>();                          // áruk listájának betöltése a datából
             foreach (Goods good in data.goods)
             {
                 goods.Add(good);
             }
 
-            //goods = data.goods;
-
-            paths = new List<List<Step>>(robots.Count);
+            paths = new List<List<Step>>(robots.Count);         // minden robotnak saját útvonal létrehozása
             for (int i=0;i<robots.Count;++i)
             {
                 paths.Add(new List<Step>());
             }
 
-            foreach (Goods good in data.goods)
+            foreach (Goods good in data.goods)                  // polcokon lévő áruk beöltése
             {
                 foreach (int i in good.destinations)
                 {
@@ -119,80 +113,76 @@ namespace Newmazon.Model
             }
         }
 
-        public void StepSimulation()
+        public void StepSimulation()                           // Szimuláció léptetése
         {
             totalSteps++;
-            for (int i=0;i<robots.Count;++i)
+            for (int i=0;i<robots.Count;++i)                   // Minden robotra megnézni, hogyha üres az útja, akkor új út megtervezése
             {
-                if (robots[i].stop > 0)
-                    robots[i].stop--;
-                else
+                if (paths[i].Count > 0)
                 {
-                    if (paths[i].Count > 0)
+                    bool foglalt = false;
+                    for (int j=0;j<robots.Count;++j)           // Megnézi, hogy a következő mezőn van-e robot,
                     {
-                        bool foglalt = false;
-                        for (int j=0;j<robots.Count;++j)
+                        if (paths[i][0].x == robots[j].x && paths[i][0].y == robots[j].y && i != j)
                         {
-                            if (paths[i][0].x == robots[j].x && paths[i][0].y == robots[j].y && i != j)
-                            {
-                                foglalt = true;
-                            }    
+                            foglalt = true;
+                        }    
+                    }
+                    if (!foglalt)                              // Ha nincs, akkor lép a robot
+                    {
+                        if (robots[i].x == paths[i][0].x &&    // Nem mozog a robot
+                            robots[i].y == paths[i][0].y &&
+                            robots[i].dir == paths[i][0].dir)
+                        {
+                            paths[i].RemoveAt(0);
                         }
-                        if (!foglalt)
+                        else if (robots[i].dir != paths[i][0].dir)  // Ha nem jó a robot iránya, akkor fordul
                         {
-                            if (robots[i].x == paths[i][0].x &&
-                                robots[i].y == paths[i][0].y &&
-                                robots[i].dir == paths[i][0].dir)
-                            {
-                                paths[i].RemoveAt(0);
-                            }
-                            else if (robots[i].dir != paths[i][0].dir)
-                            {
-                                robots[i].dir = paths[i][0].dir;
-                                robots[i].energy--;
-                                robotEnergyUsed[i]++;
-                                totalEnergyUsed++;
-                            }
-                            else
-                            {
-                                robots[i].x = paths[i][0].x;
-                                robots[i].y = paths[i][0].y;
-                                robots[i].energy--;
-                                robotEnergyUsed[i]++;
-                                totalEnergyUsed++;
-                                paths[i].RemoveAt(0);
-                            }
+                            robots[i].dir = paths[i][0].dir;
+                            robots[i].energy--;
+                            robotEnergyUsed[i]++;
+                            totalEnergyUsed++;
                         }
                         else
-                        {
-                            if(table[paths[i].Last().x, paths[i].Last().y].goods != null && table[paths[i].Last().x,paths[i].Last().y].goods.Count > 0)
-                            {
-                                int[] g1 = new int[table[paths[i].Last().x, paths[i].Last().y].goods.Count];
-                                for (int j=0;j<table[paths[i].Last().x, paths[i].Last().y].goods.Count;++j)
-                                {
-                                    g1[j] = table[paths[i].Last().x, paths[i].Last().y].goods[j];
-                                }
-                                goods.Add(new Goods(paths[i].Last().x, paths[i].Last().y, g1));
-                            }
-                            paths[i].Clear();
+                        {                                     // egyébként lép a következő mezőre
+                            robots[i].x = paths[i][0].x;
+                            robots[i].y = paths[i][0].y;
+                            robots[i].energy--;
+                            robotEnergyUsed[i]++;
+                            totalEnergyUsed++;
+                            paths[i].RemoveAt(0);
                         }
                     }
-                    else
+                    else                                     // Ha következő mező foglalt, akkor kiüríti az útvonalát, és ügyel, 
+                                                             // hogyha kapott utasítást hogy vegyen fel egy polcot, akkor azon a polcon lévő termékeket visszarakja a goods listába
                     {
-                        DoStationaryThings(robots[i]);
-                        NewmazonClasses target = CalculateNextJob(robots[i]);
-                        if (EverythingIsHome() && EverythingDelivered())
+                        if(table[paths[i].Last().x, paths[i].Last().y].goods != null && table[paths[i].Last().x,paths[i].Last().y].goods.Count > 0)
                         {
-                            OnSimOver();
-                            return;
+                            int[] g1 = new int[table[paths[i].Last().x, paths[i].Last().y].goods.Count];
+                            for (int j=0;j<table[paths[i].Last().x, paths[i].Last().y].goods.Count;++j)
+                            {
+                                g1[j] = table[paths[i].Last().x, paths[i].Last().y].goods[j];
+                            }
+                            goods.Add(new Goods(paths[i].Last().x, paths[i].Last().y, g1));
                         }
-                        CalculateRoute(robots[i], target);
+                        paths[i].Clear();
                     }
+                }
+                else
+                {
+                    DoStationaryThings(robots[i]);                                  // Minden egy helyben megcsinálható dolgot itt végez el (Pl robot feltöltése, vagy polc lerakása, stb...)
+                    NewmazonClasses target = CalculateNextJob(robots[i]);           // A következő célpont kiszámítása
+                    if (EverythingIsHome() && EverythingDelivered())                // Ha minden polc a helyén van, és nincs semmi már a polcokat, akkor vége a szimulációnak.
+                    {
+                        OnSimOver();
+                        return;
+                    }
+                    CalculateRoute(robots[i], target);                              // Útvonal megtervezése (A* algoritmussal)
                 }
             }
         }
 
-        public bool EverythingIsHome()
+        public bool EverythingIsHome()                                              // Minden polc otthon van-e?
         {
             bool mindenOtthon = true;
             foreach (Robot robot in robots)
@@ -205,7 +195,7 @@ namespace Newmazon.Model
             return mindenOtthon;
         }
 
-        public bool EverythingDelivered()
+        public bool EverythingDelivered()                                           // Minden polc üres-e?
         {
             bool mindenKezbesitve = true;
             for (int i=0;i<tableSize;++i)
@@ -221,9 +211,9 @@ namespace Newmazon.Model
             return mindenKezbesitve;
         }
 
-        public void DoStationaryThings(Robot robot)   //pl felemeli a polcot, lerakja a polcot, stb...
+        public void DoStationaryThings(Robot robot)                                 //pl felemeli a polcot, lerakja a polcot, stb...
         {
-            if (table[robot.x,robot.y].ID > 10000 && table[robot.x,robot.y].ID < 20001)   //célállomáson lerakja a megfelelő árukat 2 tick alatt
+            if (table[robot.x,robot.y].ID > 10000 && table[robot.x,robot.y].ID < 20001)   //célállomáson lerakja a megfelelő árukat
             {
                 List<int> toBeRemoved = new List<int>();
                 foreach(int good in robot.polc.goods)
@@ -245,10 +235,9 @@ namespace Newmazon.Model
                         }
                     }
                 }
-                //robot.stop+=2;
             }
 
-            if (table[robot.x, robot.y].ID > 30000 && table[robot.x, robot.y].ID < 40001)   // ha töltőállomáson van, várjon 5 ticket hogy feltöltsön
+            if (table[robot.x, robot.y].ID > 30000 && table[robot.x, robot.y].ID < 40001)   // ha töltőállomáson feltölt
             {
                 robot.energy = startingEnergy;
             }
@@ -272,7 +261,7 @@ namespace Newmazon.Model
 
         }
 
-        public NewmazonClasses CalculateNextJob(Robot robot)   //pl helyére viszi a polcot, elmegy tölteni, stb...
+        public NewmazonClasses CalculateNextJob(Robot robot)                                                             //pl helyére viszi a polcot, elmegy tölteni, stb...
         {
             if (table[robot.x,robot.y].ID > 10000 && table[robot.x,robot.y].ID < 20001 && robot.polc.goods.Count == 0)   // vigye helyére a polcot ha célállomáson van és már nincs áru
             {
@@ -307,7 +296,7 @@ namespace Newmazon.Model
                 }
             }
 
-            if (table[robot.x, robot.y].ID > 0 && table[robot.x, robot.y].ID < 10001 && robot.polc != null && robot.polc.goods.Count == 0)   // ha mezőn van és van rajta üres polc, menjen a megfelelő célállomáshoz
+            if (table[robot.x, robot.y].ID > 0 && table[robot.x, robot.y].ID < 10001 && robot.polc != null && robot.polc.goods.Count == 0)   // ha mezőn van és van rajta üres polc, vigye vissza a polcot
             {
                 return table[robot.polc.x, robot.polc.y];
             }
@@ -327,7 +316,7 @@ namespace Newmazon.Model
                 }
             }
 
-            if (robot.polc == null && robot.energy<=(4 + celallomasCount) * tableSize)   // 20% alatt menjen tölteni
+            if (robot.polc == null && robot.energy<=(4 + celallomasCount) * tableSize)   // (4 + celallomasCount) * tableSize alatt menjen tölteni
             {
                 for (int i=0;i<tableSize;++i)
                 {
@@ -349,7 +338,7 @@ namespace Newmazon.Model
                     goods.RemoveAt(0);
                     return table[temp.x, temp.y];
                 }
-                else
+                else         // ha nincs több áru, álljon egyhelyben
                 {
                     return table[robot.x, robot.y];
                 }
@@ -363,7 +352,7 @@ namespace Newmazon.Model
                     goods.RemoveAt(0);
                     return table[temp.x, temp.y];
                 }
-                else
+                else        // ha nincs több áru, menjen a saját töltőállomására
                 {
                     for (int i = 0; i < tableSize; ++i)
                     {
@@ -386,7 +375,7 @@ namespace Newmazon.Model
                     goods.RemoveAt(0);
                     return table[temp.x, temp.y];
                 }
-                else
+                else        // ha nincs több áru, menjen a saját töltőállomására
                 {
                     for (int i = 0; i < tableSize; ++i)
                     {
@@ -403,7 +392,7 @@ namespace Newmazon.Model
             return null;
         }
 
-        public void AddStop(Robot robot,int amount)
+        public void AddStop(Robot robot,int amount)      // egy helyben állás, "amount" ideig.
         {
             for (int i=0;i<amount;++i)
             {
@@ -411,21 +400,21 @@ namespace Newmazon.Model
             }
         }
 
-        public int getRobotEnergy(int i)
+        public int getRobotEnergy(int i)        // robot energiahasználat
         {
             return robotEnergyUsed[i];
         }
 
-        class Astar
+        class Astar                             // az A* algoritmus node-jai
         {
-            public int dir; // 0: jobbra, 1: fel, 2: balra, 3: le
-            public NewmazonClasses tile;
-            public int td;   //target distance
-            public Astar pi;   //mindenki tudja, hogy mi az a pí
-            public int sd;   //start distance
-            public Astar[] neighbours;
-            public List<int> blocked;
-            public int steps;
+            public int dir;                     // 0: jobbra, 1: fel, 2: balra, 3: le
+            public NewmazonClasses tile;        // a tábla melyik mezője?
+            public int td;                      // cél távolsága
+            public Astar pi;                    // a mögötte lévőre mutat
+            public int sd;                      // start távolsága
+            public Astar[] neighbours;          // mező szomszédjai
+            public List<int> blocked;           // blokkolt időpontok -- ebben az időben nem mehet ide a robot, mert épp foglalt a mező
+            public int steps;                   // hány lépésben jutna ide a robot
 
             public Astar(NewmazonClasses field, NewmazonClasses target)
             {
@@ -435,7 +424,6 @@ namespace Newmazon.Model
                 tile = field;
 
                 td = Math.Abs(target.x - field.x) + Math.Abs(target.y - field.y);
-                //td = (int)Math.Sqrt((target.x - field.x) * (target.x - field.x) + (target.y - field.y) * (target.y - field.y));
                 sd = 1000000; 
 
                 pi = null;
@@ -443,11 +431,11 @@ namespace Newmazon.Model
             }
         }
 
-        public void CalculateRoute(Robot robot, NewmazonClasses target)
+        public void CalculateRoute(Robot robot, NewmazonClasses target)      // útvonaltervező függvény
         {
             List<Astar> prioQ = new List<Astar>();
 
-            List<int>[,] blocks = new List<int>[tableSize, tableSize];
+            List<int>[,] blocks = new List<int>[tableSize, tableSize];       // blokkolt időpontok mátrixa (tábla szerint)
 
             for (int i = 0; i < tableSize; ++i)
             {
@@ -457,7 +445,7 @@ namespace Newmazon.Model
                 }
             }
 
-            for (int i = 0; i < robots.Count; ++i)
+            for (int i = 0; i < robots.Count; ++i)     // minden roboton végigfut, és berakja a blokkolt időpontok mátrixába a megfelelő mezőkre, hogy mikor vannak blokkolva
             {
                 if (paths[i].Count > 0)
                 {
@@ -489,7 +477,7 @@ namespace Newmazon.Model
             }
 
 
-            for (int i=0;i<tableSize;++i)
+            for (int i=0;i<tableSize;++i)       // megnézi, hogy melyik mezőkhöz kell rendelni Node-ot (Pl a falhoz nem kell, mert oda nem léphet robot)
             {
                 for (int j=0;j<tableSize;++j)
                 {
@@ -512,11 +500,11 @@ namespace Newmazon.Model
                     }
                 }
             }
-            Astar fin = new Astar(target, target);
+            Astar fin = new Astar(target, target);      // targethez külön hozzá kell rendelni egy Node-ot, mert pl az lehet töltőállomás, ami alapból nem kerül bele az algoritmusba
             fin.blocked = blocks[target.x, target.y];
             prioQ.Add(fin);
 
-            foreach (Astar a in prioQ)
+            foreach (Astar a in prioQ)          // szomszédok hozzárendelése egymáshoz
             {
                 foreach (Astar b in prioQ)
                 {
@@ -540,17 +528,17 @@ namespace Newmazon.Model
                 a.neighbours[4] = a;
             }
 
-            prioQ = prioQ.OrderBy(o => (o.sd+o.td)).ToList();
+            prioQ = prioQ.OrderBy(o => (o.sd+o.td)).ToList();        // rendezés sd+td szerint
 
             Astar u = prioQ[0];
-            prioQ.RemoveAt(0);
+            prioQ.RemoveAt(0);               // mindig a legkisebb sd+td -vel rendelkező elem kivétele
 
-            while (u.tile != target)
+            while (u.tile != target)         // amíg meg nem találjuk a célt, addig fusson
             {
-                Astar v = u.neighbours[0];
+                Astar v = u.neighbours[0];   // mindig csak a szomszédok között "fut él", ezért csak azokat kell megnézni, hogy az adott mezőből könnyebben oda tudunk-e jutni
                 int dirC = 0;
                 int stepC = 0;
-                if (v != null)
+                if (v != null)               // jobb szomszéd
                 {
                     switch (u.dir)
                     {
@@ -571,7 +559,7 @@ namespace Newmazon.Model
                             stepC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC))
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC))  // ha gyorsabban idejutunk, és nicns blokkolva ebben az időben, akkor mostmár u-ból jöjjünk ide
                     {
                         v.sd = u.sd + dirC + 1;
                         v.pi = u;
@@ -580,7 +568,7 @@ namespace Newmazon.Model
                     }
                 }
                 v = u.neighbours[1];
-                if (v != null)
+                if (v != null)               // felső szomszéd
                 {
                     switch (u.dir)
                     {
@@ -601,7 +589,7 @@ namespace Newmazon.Model
                             stepC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC))
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC))  // ha gyorsabban idejutunk, és nicns blokkolva ebben az időben, akkor mostmár u-ból jöjjünk ide
                     {
                         v.sd = u.sd + dirC + 1;
                         v.pi = u;
@@ -610,7 +598,7 @@ namespace Newmazon.Model
                     }
                 }
                 v = u.neighbours[2];
-                if (v != null)
+                if (v != null)               // bal szomszéd
                 {
                     switch (u.dir)
                     {
@@ -631,7 +619,7 @@ namespace Newmazon.Model
                             stepC = 1;
                             break;
                     }
-                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC))
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC))  // ha gyorsabban idejutunk, és nicns blokkolva ebben az időben, akkor mostmár u-ból jöjjünk ide
                     {
                         v.sd = u.sd + dirC + 1;
                         v.pi = u;
@@ -640,7 +628,7 @@ namespace Newmazon.Model
                     }
                 }
                 v = u.neighbours[3];
-                if (v != null)
+                if (v != null)               // alsó szomszéd
                 {
                     switch (u.dir)
                     {
@@ -661,7 +649,7 @@ namespace Newmazon.Model
                             stepC = 0;
                             break;
                     }
-                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC))
+                    if (u.sd + u.td + dirC + 1 < v.sd + v.td && !v.blocked.Contains(u.steps + stepC))  // ha gyorsabban idejutunk, és nicns blokkolva ebben az időben, akkor mostmár u-ból jöjjünk ide
                     {
                         v.sd = u.sd + dirC + 1;
                         v.pi = u;
@@ -671,10 +659,12 @@ namespace Newmazon.Model
                 }
 
                 prioQ = prioQ.OrderBy(o => o.sd + o.td).ToList();
-
-                Debug.WriteLine(prioQ[0].tile.x);
-                Debug.WriteLine(prioQ[0].tile.y);
-                if (prioQ[0].sd > 10000)
+                                                                // itt jön egy trükk: hogyha a blokkolt elemek miatt a PrioQ-ban a legkisebb prioritású elem még inicializálatlan,
+                                                                // azaz a pi még null, akkor ne vegye ki azt a Node-ot, helyette rakjon bele a queue-ba egy másik Node-ot, aminek
+                                                                // ugyanaz a koordinátája, mint az u-nak. 
+                                                                // és ha éppen ez is blokkolt, akkor szimplán hívjon meg egy AddStop(robot, 1)-et, ami megállítja a robotot egy tickre,
+                                                                // így majd a léptető függvény elrendezi a potenciális ütközést.
+                if (prioQ[0].sd > 10000)                    
                 {
                     Astar newA = new Astar(u.tile, target);
 
@@ -699,6 +689,8 @@ namespace Newmazon.Model
                         return;
                     }
                 }
+                        // egyébként vegye ki a legkisebb prioritású elemet, DE attól még ugyanúgy rakjon bele a prioQ-ba egy másik Node-ot,
+                        // u koordinátájával.
                 else
                 {
                     Astar newA = new Astar(u.tile, target);
@@ -730,51 +722,23 @@ namespace Newmazon.Model
             }
 
             int endDir = u.dir;
-
-            if (table[target.x, target.y].ID > 10000 && table[target.x, target.y].ID < 20001)
+            
+            while (u.pi != null)
             {
-                Astar w1 = new Astar(u.tile, target);
-                w1.blocked = u.blocked;
-                w1.steps = u.steps + 1;
-                w1.dir = u.dir;
-                w1.pi = u;
-
-                Astar w2 = new Astar(u.tile, target);
-                w2.blocked = w1.blocked;
-                w2.steps = w1.steps + 1;
-                w2.dir = w1.dir;
-                w2.pi = w1;
-
-                if (!w1.blocked.Contains(w1.steps) && !w2.blocked.Contains(w2.steps))
-                {
-                    while (w1.pi != null)
-                    {
-                        paths[robot.ID - 40001].Add(new Step(w1.tile.x, w1.tile.y, w1.dir));
-                        w1 = w1.pi;
-                    }
-                    paths[robot.ID - 40001].Reverse();
-                }
-                else
-                {
-                    AddStop(robot, 1);
-                    return;
-                }
+                paths[robot.ID - 40001].Add(new Step(u.tile.x, u.tile.y, u.dir));  // ha megtaláltuk a targetet, akkor visszafelé a pi segítségével állítsuk elő az útvonalat
+                u = u.pi;
             }
-            else
+            paths[robot.ID - 40001].Reverse();
+            if (table[target.x, target.y].ID > 30000 && table[target.x, target.y].ID < 40001)  // ha a target egy töltőállomás, akkor még álljon 4et hogy meglegyen az 5
             {
-                while (u.pi != null)
-                {
-                    paths[robot.ID - 40001].Add(new Step(u.tile.x, u.tile.y, u.dir));
-                    u = u.pi;
-                }
-                paths[robot.ID - 40001].Reverse();
-                if (table[target.x, target.y].ID > 30000 && table[target.x, target.y].ID < 40001)
-                {
-                    paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
-                    paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
-                    paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
-                    paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
-                }
+                paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
+                paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
+                paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
+                paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
+            }
+            if (table[target.x, target.y].ID > 10000 && table[target.x, target.y].ID < 20001)  // ha pedig célállomás, akkor álljon még egyet.
+            {
+                paths[robot.ID - 40001].Add(new Step(target.x, target.y, endDir));
             }
 
         }

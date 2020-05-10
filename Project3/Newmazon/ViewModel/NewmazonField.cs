@@ -11,6 +11,9 @@ namespace Newmazon.ViewModel
         private char _identity;
         private string _content;
 
+        /// <summary>
+        /// Label tartalma lekérdezése vagy beállítása.
+        /// </summary>
         public string Content
         {
             get { return _content; }
@@ -24,6 +27,10 @@ namespace Newmazon.ViewModel
             }
         }
 
+
+        /// <summary>
+        /// Label háttere lekérdezése vagy beállítása
+        /// </summary>
         public char Identity
         {
             get { return _identity; }
@@ -52,9 +59,5 @@ namespace Newmazon.ViewModel
         /// </summary>
         public Int32 Number { get; set; }
 
-        /// <summary>
-        /// Lépés parancs lekérdezése, vagy beállítása.
-        /// </summary>
-        public DelegateCommand StepCommand { get; set; }
     }
 }
