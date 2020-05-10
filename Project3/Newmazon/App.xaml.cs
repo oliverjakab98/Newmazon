@@ -45,7 +45,7 @@ namespace Newmazon
             IPersistence dataAccess;
             dataAccess = new NewmazonFileDataAccess(AppDomain.CurrentDomain.BaseDirectory);
             sec = 0;
-            ms = 100;
+            ms = 500;
 
 
             _model = new NewmazonModel(dataAccess);
