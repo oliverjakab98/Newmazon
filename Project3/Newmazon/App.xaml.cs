@@ -54,10 +54,10 @@ namespace Newmazon
             _model = new NewmazonModel(dataAccess);
             _model._kozpont.SimOver += new EventHandler<NewmazonEventArgs>(Model_SimOver);
 
-            char[,] dt = { {'R', 'M', 'M', 'M', 'M' }, 
-                           {'F', 'M', 'P', 'M', 'M' }, 
-                           {'F', 'M', 'P', 'M', 'T' }, 
-                           {'F', 'M', 'M', 'M', 'M' }, 
+            char[,] dt = { {'R', 'M', 'M', 'M', 'M' },
+                           {'F', 'M', 'P', 'M', 'M' },
+                           {'F', 'M', 'P', 'M', 'T' },
+                           {'F', 'M', 'M', 'M', 'M' },
                            {'F', 'M', 'C', 'M', 'C' } };
             List<Goods> g = new List<Goods>();
             int[] g1 = new int[1]; g1[0] = 1;
@@ -69,7 +69,7 @@ namespace Newmazon
             AllData data = new AllData(dt, g, tS, rE);
 
             _model._kozpont.NewSimulation(data);
-            
+
 
             _viewModel = new NewmazonViewModel(_model);
             _viewModel.ExitApp += new EventHandler(ViewModel_ExitApp);
@@ -78,6 +78,7 @@ namespace Newmazon
             _viewModel.TimeRestart += new EventHandler(ViewModel_TimeRestart);
             _viewModel.SpeedUp += new EventHandler(ViewModel_SpeedUp);
             _viewModel.SlowDown += new EventHandler(ViewModel_SlowDown);
+            _viewModel.Help += new EventHandler(ViewModel_Help);
 
             _view = new MainWindow();
             _view.DataContext = _viewModel;
@@ -210,6 +211,29 @@ namespace Newmazon
                 ms = 0;
                 _timer.Interval = new TimeSpan(0, 0, 0, sec, ms);
             }
+        }
+
+        /// <summary>
+        /// Súgó megnyitása.
+        /// </summary>
+        private void ViewModel_Help(object sender, System.EventArgs e)
+        {
+            _timer.Stop();
+            MessageBox.Show("Ez a program egy olyan raktárat szimulál, ahol robotok szállítják az árukat a megfelelő célállomásra a központ utasításai alapján.\n" +
+                "A központ felel továbbá azért, hogy a robotok ki tudják kerülni egymást, valamint, hogy alacsony töltöttség esetén elküldje a robotokat a legközelebb található töltőállomásra.\n" +
+                "A szimuláció sebessége a fel-le nyilakkal szabályozható.\n\n" +
+                "A különböző színek reprezentálják a mezők típusát:\n" +
+                "Fehér: üres mező\n" +
+                "Fekete: fal\n" +
+                "Zöld: célállomás\n" +
+                "Kék: töltőállomás\n" +
+                "Szürke: polc\n" +
+                "Sárga: robot, akinél jelenleg nincsen polc, és polc alatt sem tartózkodik\n" +
+                "Narancssárga: robot, aki jelenleg polc alatt tartózkodik, de nem vette fel azt\n" +
+                "Piros: robot, aki jelenleg polcot visz egy célállomásra\n\n" +
+                "Minden robot mező tartalmazza, hogy a robot éppen merre néz, valamint a töltöttségi szintjét.\n\n" +
+                "A szimuláció végén a .exe fájllal egy mappába a program készít egy log fájlt, amelyben megtalálható, hogy hány lépés kellett a szimuláció végrehajtásához, valamint hogy a robotok összesen, és külön-külön mennyi energiát fogyasztottak.", "Newmazon súgó");
+            _timer.Start();
         }
     }
 }

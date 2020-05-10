@@ -53,6 +53,11 @@ namespace Newmazon.ViewModel
         public DelegateCommand SlowDownCommand { get; private set; }
 
         /// <summary>
+        /// Súgó megnyitása parancs lekérdezése.
+        /// </summary>
+        public DelegateCommand HelpCommand { get; private set; }
+
+        /// <summary>
         ///  Tábla lehet NxM, Size1 = N;
         /// </summary>
         public int Size1 { get; private set; }
@@ -100,6 +105,10 @@ namespace Newmazon.ViewModel
         /// Az idő lelassításának eseménye.
         /// </summary>
         public event EventHandler SlowDown;
+        /// <summary>
+        /// Súgó megnyitásának eseménye.
+        /// </summary>
+        public event EventHandler Help;
         #endregion
 
         #region Constructors
@@ -123,6 +132,7 @@ namespace Newmazon.ViewModel
             RessimCommand = new DelegateCommand(param => RestartSim());
             SpeedUpCommand = new DelegateCommand(param => OnSpeedUp());
             SlowDownCommand = new DelegateCommand(param => OnSlowDown());
+            HelpCommand = new DelegateCommand(param => OnHelp());
             model.SimCreated += new EventHandler<NewmazonEventArgs>(Model_SimCreated);
             model.SimAdvanced += new EventHandler<NewmazonEventArgs>(Model_SimAdvanced);
 
@@ -139,7 +149,7 @@ namespace Newmazon.ViewModel
                         X = i,
                         Y = j,
                         Number = i * _model._kozpont.tableSize + j, // a gomb sorszáma, amelyet felhasználunk az azonosításhoz
-                    }) ;
+                    });
                 }
             }
             //A tábla update-elése releváns adatokkall
@@ -155,38 +165,38 @@ namespace Newmazon.ViewModel
             foreach (NewmazonField field in Fields)
             {
                 //fal
-                if (_model._kozpont.table[field.X, field.Y].ID == 0) 
+                if (_model._kozpont.table[field.X, field.Y].ID == 0)
                 {
                     field.Identity = 'W';
                 }
                 // ures mező
-                if (_model._kozpont.table[field.X,field.Y].ID > 0 && _model._kozpont.table[field.X,field.Y].ID < 10001)
+                if (_model._kozpont.table[field.X, field.Y].ID > 0 && _model._kozpont.table[field.X, field.Y].ID < 10001)
                 {
                     field.Content = "";
                     field.Identity = 'M';
                 }
                 // célállomás
-                else if (_model._kozpont.table[field.X,field.Y].ID > 10000 && _model._kozpont.table[field.X,field.Y].ID < 20001)
+                else if (_model._kozpont.table[field.X, field.Y].ID > 10000 && _model._kozpont.table[field.X, field.Y].ID < 20001)
                 {
                     field.Identity = 'C';
-                    field.Content = (_model._kozpont.table[field.X, field.Y].ID - 10000).ToString()+"-es célállomás";
+                    field.Content = (_model._kozpont.table[field.X, field.Y].ID - 10000).ToString() + "-es célállomás";
                 }
                 // polc
-                else if (_model._kozpont.table[field.X,field.Y].ID > 20000 && _model._kozpont.table[field.X,field.Y].ID < 30001)
+                else if (_model._kozpont.table[field.X, field.Y].ID > 20000 && _model._kozpont.table[field.X, field.Y].ID < 30001)
                 {
-                    Polc polc = (Polc)_model._kozpont.table[field.X,field.Y];
-                    string items="";
-                    foreach (int good in _model._kozpont.table[field.X, field.Y].goods) 
+                    Polc polc = (Polc)_model._kozpont.table[field.X, field.Y];
+                    string items = "";
+                    foreach (int good in _model._kozpont.table[field.X, field.Y].goods)
                     {
                         string tmp = good.ToString();
                         tmp += "  ";
                         items += tmp;
                     }
-                    
+
                     if (polc.otthon == true) { field.Identity = 'P'; field.Content = items; }
                     else { field.Identity = 'M'; field.Content = ""; }
                 }
-                else if (_model._kozpont.table[field.X,field.Y].ID > 30000 && _model._kozpont.table[field.X,field.Y].ID < 40001)
+                else if (_model._kozpont.table[field.X, field.Y].ID > 30000 && _model._kozpont.table[field.X, field.Y].ID < 40001)
                 {
                     field.Identity = 'T';
                     field.Content = "";
@@ -200,14 +210,14 @@ namespace Newmazon.ViewModel
             // -nincs polc alatt és nem visz polcot van
             // -polc alatt van de nem visz polcot
             // -polcot visz magával
-            foreach (Robot robot in _model._kozpont.robots) 
+            foreach (Robot robot in _model._kozpont.robots)
             {
                 int x = robot.x;
                 int y = robot.y;
 
                 NewmazonField field = Fields[x * _model._kozpont.tableSize + y];
 
-                if (robot.polc != null) 
+                if (robot.polc != null)
                 {
                     field.Content = robot.energy.ToString();
                     if (robot.dir == 0) { field.Identity = 'K'; }
@@ -223,7 +233,7 @@ namespace Newmazon.ViewModel
                     else if (robot.dir == 2) { field.Identity = '2'; }
                     else if (robot.dir == 3) { field.Identity = '3'; }
                 }
-                else 
+                else
                 {
                     field.Content = robot.energy.ToString();
                     if (robot.dir == 0) { field.Identity = 'J'; }
@@ -311,6 +321,12 @@ namespace Newmazon.ViewModel
         {
             if (SlowDown != null)
                 SlowDown(this, EventArgs.Empty);
+        }
+
+        private void OnHelp()
+        {
+            if (Help != null)
+                Help(this, EventArgs.Empty);
         }
         #endregion
     }

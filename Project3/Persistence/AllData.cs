@@ -3,11 +3,11 @@
 namespace Newmazon.Persistence
 {
 
-    public class Goods
+    public class Goods //áruk adatait tároló osztály
     {
-        public int x;
-        public int y;
-        public int[] destinations;
+        public int x; //x-koordináta
+        public int y; //y-koordináta
+        public int[] destinations; //hova kell vinni az árut
         public Goods(int _x, int _y, int[] dests)
         {
             x = _x;
@@ -16,12 +16,12 @@ namespace Newmazon.Persistence
         }
     }
 
-    public class AllData
+    public class AllData //a központnak ezekre az adatokra van szüksége a szimuláció indításához
     {
-        public char[,] dataTable;
-        public List<Goods> goods;
-        public int tableSize;
-        public int robotEnergy;
+        public char[,] dataTable; //pályaelemek
+        public List<Goods> goods; //áruk
+        public int tableSize; //pálya mérete
+        public int robotEnergy; //robotok alap energiaszintje
 
         public AllData(char[,] _dataTable, List<Goods> _goods, int _tableSize, int _robotEnergy)
         {

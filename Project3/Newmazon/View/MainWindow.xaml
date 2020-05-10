@@ -28,7 +28,7 @@
                 <Separator />
                 <MenuItem Header="Kilépés" Command="{Binding ExitCommand}" />
             </MenuItem>
-            <MenuItem Header="Súgó">
+            <MenuItem Header="Súgó" Command="{Binding HelpCommand}">
             </MenuItem>
         </Menu>
         <!-- MENU VEGE-->
