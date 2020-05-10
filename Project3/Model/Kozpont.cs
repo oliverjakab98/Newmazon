@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Newmazon.Persistence;
 using System.Diagnostics;
-using System.Windows.Media.Animation;
 
 namespace Newmazon.Model
 {

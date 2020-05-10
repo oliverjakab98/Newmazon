@@ -81,9 +81,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Model\Model.csproj">
+      <Project>{1f3ef1fc-99ff-4dc1-80be-655e30836cba}</Project>
+      <Name>Model</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Newmazon\Newmazon.csproj">
       <Project>{1bb2785a-54f4-4f84-8d34-01c71f1eb1df}</Project>
       <Name>Newmazon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Persistence\Persistence.csproj">
+      <Project>{577fdabb-bc5e-40f7-9b7e-ba72839c0a61}</Project>
+      <Name>Persistence</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
