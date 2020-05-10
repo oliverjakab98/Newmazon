@@ -75,23 +75,5 @@ namespace Newmazon.Persistence
 				throw new NewmazonDataException();
 			}
 		}
-		
-
-		public async Task<ICollection<Simulations>> ListAsync()
-		{
-			try
-			{
-				return Directory.GetFiles(_simDirectory, "*.sim")
-					.Select(path => new Simulations
-					{
-						Name = Path.GetFileNameWithoutExtension(path),
-					})
-					.ToList();
-			}
-			catch
-			{
-				throw new NewmazonDataException();
-			}
-		}
 	}
 }
