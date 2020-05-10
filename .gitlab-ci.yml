@@ -21,3 +21,8 @@ build_persistence:
     script:
     - dotnet build Persistence
 
+# Test
+test_model:
+  stage: test
+  script:
+    - dotnet test NewmazonUnitTest
