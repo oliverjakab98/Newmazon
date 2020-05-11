@@ -6,12 +6,21 @@
         xmlns:local="clr-namespace:Newmazon"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.InputBindings>
+        <!--A szimuláció gyorsításához binding-->
+        <KeyBinding Command="{Binding SpeedUpCommand}" 
+                Key="Up" />
+        <!--A szimuláció lassításához binding-->
+        <KeyBinding Command="{Binding SlowDownCommand}" 
+                Key="Down"  />
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <!--MENU-->
         <Menu Grid.Row="0">
             <MenuItem Header="Fájl">
                 <MenuItem Header="Jelenlegi szimuláció újraindítása" Command="{Binding RessimCommand}" />
@@ -24,22 +33,25 @@
         </Menu>
         <!-- MENU VEGE-->
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Fields}">
-            <!--az mezőket tároló vezérlő-->
+            <!--a mezőket tároló vezérlő-->
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <!--a labelöket egy rácsba fűzzük fel-->
+                    <!--a mezőket egy rácsba fűzzük fel-->
                     <UniformGrid Rows="{Binding Size1}" Columns="{Binding Size2}" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <!--az elemek labelek lesznek-->
                 <DataTemplate>
-                    <Label Content="{Binding Content}" Focusable="False" RenderTransformOrigin="0.5, 0.5" BorderBrush="Black" Padding="2" BorderThickness="1">
-                        <!-- label háttérszíne -->
+                    <Label Content="{Binding Content, NotifyOnTargetUpdated=True}" Focusable="False" RenderTransformOrigin="0.5, 0.5" BorderBrush="Black" Padding="2" BorderThickness="1">
+                       
                         <Label.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1" />
                         </Label.RenderTransform>
                         <Label.Style>
+                            <!-- LABEL HÁTTÉRSZÍN -->
+                            <!-- Háttérszínűket egy kép jeleníti meg egy nyillal hogy merre néz éppen! -->
+
                             <!-- CHAR TIPÚS MIKOR MILYEN MEZŐ! -->
                             <!-- M -> MEZŐ -->
                             <!-- W -> FAL -->
@@ -183,6 +195,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Label.Style>
+    
                     </Label>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

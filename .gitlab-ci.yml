@@ -19,11 +19,15 @@ before_script:
 build_egesz:
   stage: build
   script:
-    - dotnet build Newmazon
-    #- msbuild Newmazon
+    - dotnet build Model
+    
+build_persistence:
+    stage: build
+    script:
+    - dotnet build Persistence
 
 # Test
-#test_model:
-#  stage: test
-#  script:
-#    - dotnet test NewmazonUnitTest
+test_model:
+  stage: test
+  script:
+    - dotnet test NewmazonUnitTest
