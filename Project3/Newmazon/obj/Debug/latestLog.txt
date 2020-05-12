@@ -1,0 +1,10 @@
+Lépésszám: 497
+Összes energiahasználat: 3019
+1. robot energiahasználata: 370
+2. robot energiahasználata: 401
+3. robot energiahasználata: 404
+4. robot energiahasználata: 302
+5. robot energiahasználata: 435
+6. robot energiahasználata: 417
+7. robot energiahasználata: 401
+8. robot energiahasználata: 289
