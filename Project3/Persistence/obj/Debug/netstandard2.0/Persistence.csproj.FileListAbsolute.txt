@@ -1,0 +1,8 @@
+D:\gitDownload\project_3\Project3\Persistence\bin\Debug\netstandard2.0\Persistence.deps.json
+D:\gitDownload\project_3\Project3\Persistence\bin\Debug\netstandard2.0\Persistence.dll
+D:\gitDownload\project_3\Project3\Persistence\bin\Debug\netstandard2.0\Persistence.pdb
+D:\gitDownload\project_3\Project3\Persistence\obj\Debug\netstandard2.0\Persistence.AssemblyInfoInputs.cache
+D:\gitDownload\project_3\Project3\Persistence\obj\Debug\netstandard2.0\Persistence.AssemblyInfo.cs
+D:\gitDownload\project_3\Project3\Persistence\obj\Debug\netstandard2.0\Persistence.dll
+D:\gitDownload\project_3\Project3\Persistence\obj\Debug\netstandard2.0\Persistence.pdb
+D:\gitDownload\project_3\Project3\Persistence\obj\Debug\netstandard2.0\Persistence.csprojAssemblyReference.cache
