@@ -30,4 +30,4 @@ build_persistence:
 test_model:
   stage: test
   script:
-    - dotnet test NewmazonUnitTest
+    - dotnet test UnitTestProject1
