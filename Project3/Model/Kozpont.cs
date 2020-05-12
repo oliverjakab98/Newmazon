@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Newmazon.Persistence;
 using System.Diagnostics;
-using System.Windows.Media.Animation;
 
 namespace Newmazon.Model
 {
@@ -15,7 +14,7 @@ namespace Newmazon.Model
         //public List<List<NewmazonClasses>> table;
         public NewmazonClasses[,] table;
         public List<Robot> robots;
-        private List<List<Step>> paths;
+        public List<List<Step>> paths;
         private int startingEnergy;
         public List<Goods> goods;
         private int totalEnergyUsed;
