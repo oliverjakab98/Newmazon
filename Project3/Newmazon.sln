@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Persistence", "Persistence\Persistence.csproj", "{577FDABB-BC5E-40F7-9B7E-BA72839C0A61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewmazonUnitTest", "NewmazonUnitTest\NewmazonUnitTest.csproj", "{6012CBF3-7066-4DB6-A6EE-D403865FD0AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewmazonUnitTest", "UnitTestProject1\NewmazonUnitTest.csproj", "{5B5E4B61-0040-4E09-926E-3F59106DC380}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{577FDABB-BC5E-40F7-9B7E-BA72839C0A61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{577FDABB-BC5E-40F7-9B7E-BA72839C0A61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{577FDABB-BC5E-40F7-9B7E-BA72839C0A61}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6012CBF3-7066-4DB6-A6EE-D403865FD0AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6012CBF3-7066-4DB6-A6EE-D403865FD0AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6012CBF3-7066-4DB6-A6EE-D403865FD0AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6012CBF3-7066-4DB6-A6EE-D403865FD0AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B5E4B61-0040-4E09-926E-3F59106DC380}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B5E4B61-0040-4E09-926E-3F59106DC380}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B5E4B61-0040-4E09-926E-3F59106DC380}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B5E4B61-0040-4E09-926E-3F59106DC380}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

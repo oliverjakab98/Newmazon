@@ -1,4 +1,4 @@
-Ôªøusing System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -142,7 +142,7 @@ namespace NewmazonUnitTest
             _model._kozpont.robots[0].energy = 15;
             NewmazonClasses test = _model._kozpont.CalculateNextJob(_model._kozpont.robots[0]);
 
-            int id_kivonas = 10000; //ID alapj√°n tesztel√ºnk amelyek 10000-k√©nt v√°ltanak pl robot, v√©g√°llom√°s, t√∂lt√∂√°llom√°s
+            int id_kivonas = 10000; //ID alapj·n tesztel¸nk amelyek 10000-kÈnt v·ltanak pl robot, vÈg·llom·s, tˆltˆ·llom·s
 
             Assert.AreEqual(test.ID, _model._kozpont.robots[0].ID - id_kivonas);
 
@@ -177,7 +177,7 @@ namespace NewmazonUnitTest
         }
 
         [TestMethod]
-        public void DoStationaryThingsTest() //polc felv√©tele
+        public void DoStationaryThingsTest() //polc felvÈtele
         {
             _model._kozpont.NewSimulation(data);
 
@@ -193,7 +193,7 @@ namespace NewmazonUnitTest
         }
 
         [TestMethod]
-        public void DoStationaryThingsTest2() //polc lerak√°sa
+        public void DoStationaryThingsTest2() //polc lerak·sa
         {
             _model._kozpont.NewSimulation(data);
 
@@ -213,7 +213,7 @@ namespace NewmazonUnitTest
         }
 
         [TestMethod]
-        public void DoStationaryThingsTest3() //lepakol term√©ket a polcr√≥l
+        public void DoStationaryThingsTest3() //lepakol termÈket a polcrÛl
         {
             _model._kozpont.NewSimulation(data);
 
@@ -238,7 +238,7 @@ namespace NewmazonUnitTest
         }
 
         [TestMethod]
-        public void DoStationaryThingsTest4() //t√∂lt
+        public void DoStationaryThingsTest4() //tˆlt
         {
             _model._kozpont.NewSimulation(data);
 
