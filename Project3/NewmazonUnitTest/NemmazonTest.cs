@@ -13,7 +13,7 @@ namespace NewmazonUnitTest
         private NewmazonModel _model;
         private AllData data;
 
-        
+
         [TestInitialize]
         public void InInitialize()
         {
@@ -34,7 +34,7 @@ namespace NewmazonUnitTest
 
 
             _model = new NewmazonModel(null);
-            
+
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace NewmazonUnitTest
         }
 
         [TestMethod]
-        public void MoveNoPolcTest() 
+        public void MoveNoPolcTest()
         {
             _model._kozpont.NewSimulation(data);
 
@@ -56,7 +56,7 @@ namespace NewmazonUnitTest
 
             Assert.AreEqual(null, _model._kozpont.robots[0].polc);
 
-            
+
         }
 
         [TestMethod]
@@ -92,7 +92,7 @@ namespace NewmazonUnitTest
 
             Assert.AreNotEqual(energy, _model._kozpont.robots[0].energy);
 
-           
+
         }
 
         [TestMethod]
@@ -129,8 +129,8 @@ namespace NewmazonUnitTest
 
             _model.StepSimulation();
 
-            Assert.AreEqual(X,_model._kozpont.robots[0].x);
-            Assert.AreEqual(Y,_model._kozpont.robots[0].y);
+            Assert.AreEqual(X, _model._kozpont.robots[0].x);
+            Assert.AreEqual(Y, _model._kozpont.robots[0].y);
 
         }
 
@@ -197,7 +197,7 @@ namespace NewmazonUnitTest
         {
             _model._kozpont.NewSimulation(data);
 
-            _model._kozpont.robots[0].polc = (Polc)_model._kozpont.table[1,2];
+            _model._kozpont.robots[0].polc = (Polc)_model._kozpont.table[1, 2];
 
             _model._kozpont.robots[0].polc.goods.Clear();
 
