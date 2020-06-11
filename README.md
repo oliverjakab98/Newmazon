@@ -1,6 +1,6 @@
 # Newmazon
 
-Amazon amerikai cég által használt autómatizált pakoló robotrendszer szimulációja, melyet Szoftvertechnológia tárgyhoz készítettem Ács Botond és Dóra Lászlóval együtt. 
+Amazon amerikai cég által használt automatizált pakoló robotrendszer szimulációja, melyet Szoftvertechnológia tárgyhoz készítettem Ács Botond és Dóra Lászlóval együtt. 
 
 ## Leírás
 Egy raktár tipikus alaprajza:
