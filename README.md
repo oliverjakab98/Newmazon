@@ -2,11 +2,11 @@
 
 Amazon amerikai cég által használt automatizált pakoló robotrendszer szimulációja, melyet Szoftvertechnológia tárgyhoz készítettem Ács Botond és Dóra Lászlóval együtt. 
 
-WPF alkalmazás
-Módosított A* algoritmus az útkeresésre
-MVVM struktúra
-Fájlból való adatbetöltét a szimulációhoz (.sim)
-Részletes tesztesetek
+-WPF alkalmazás
+-Módosított A* algoritmus az útkeresésre
+-MVVM struktúra
+-Fájlból való adatbetöltét a szimulációhoz (.sim)
+-Részletes tesztesetek
 
 ## Leírás
 Egy raktár tipikus alaprajza:
